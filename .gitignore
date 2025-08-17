@@ -73,3 +73,5 @@ buildNumber.properties
 .env.local
 .env.*.local
 *.env
+application-*.properties
+!application-dev.properties
