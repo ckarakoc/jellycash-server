@@ -1,0 +1,18 @@
+services:
+  jellycash-db:
+    image: postgres:latest
+    container_name: jellycash-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - jellycash-data:/var/lib/postgresql/data
+
+volumes:
+  jellycash-data:
