@@ -2,13 +2,18 @@ package nl.ckarakoc.jellycash.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "categories")
 public class Category {
 	@Id
@@ -16,9 +21,27 @@ public class Category {
 	@Column(name = "category_id", nullable = false)
 	private Long categoryId;
 
+	@Column(nullable = false, unique = true)
+	private String name;
+
+	@CreationTimestamp
+	@Column(name = "created_at", updatable = false, nullable = false)
+	private LocalDateTime createdAt;
+
 	@OneToMany(mappedBy = "category")
 	private List<Transaction> transactions;
 
 	@OneToMany(mappedBy = "category")
 	private List<Budget> budgets;
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Category category)) return false;
+		return Objects.equals(categoryId, category.categoryId);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(categoryId);
+	}
 }
