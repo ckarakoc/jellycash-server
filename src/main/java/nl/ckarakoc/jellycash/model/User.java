@@ -23,18 +23,16 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
-
 	@Column(nullable = false)
 	private String username;
 	@Column(nullable = false, unique = true)
 	private String email;
 	@Column(nullable = false)
 	private String password;
-
-	@Column
 	private String firstName;
 	private String lastName;
 	private String avatar = ""; // todo: location to default avatar image
+	@Column(length = 3)
 	private String currency = "EUR";
 	private Long balance = 0L;
 	private Long income = 0L;

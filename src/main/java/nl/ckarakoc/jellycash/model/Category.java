@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Table(name = "categories")
 public class Category {
 	@Id
@@ -29,9 +31,11 @@ public class Category {
 	private LocalDateTime createdAt;
 
 	@OneToMany(mappedBy = "category")
+	@ToString.Exclude
 	private List<Transaction> transactions;
 
 	@OneToMany(mappedBy = "category")
+	@ToString.Exclude
 	private List<Budget> budgets;
 
 	@Override

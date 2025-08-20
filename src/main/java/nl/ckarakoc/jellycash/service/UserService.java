@@ -7,5 +7,6 @@ import nl.ckarakoc.jellycash.dto.UpdateUserResponseDto;
 
 public interface UserService {
 	CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestDto);
+
 	UpdateUserResponseDto updateUser(UpdateUserRequestDto updateUserRequestDto);
 }

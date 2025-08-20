@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Table(name = "pots")
 public class Pot {
 	@Id
@@ -38,6 +40,7 @@ public class Pot {
 	private User user;
 
 	@OneToMany(mappedBy = "pot")
+	@ToString.Exclude
 	private List<PotTransaction> potTransactions;
 
 	@Override

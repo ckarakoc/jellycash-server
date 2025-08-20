@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Table(name = "recurring_bills")
 public class RecurringBill {
 	@Id
@@ -36,6 +38,7 @@ public class RecurringBill {
 	private LocalDateTime updatedAt;
 
 	@OneToMany(mappedBy = "recurringBill")
+	@ToString.Exclude
 	private List<Transaction> transactions;
 
 	@Override
