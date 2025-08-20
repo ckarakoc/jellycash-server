@@ -2,15 +2,17 @@ package nl.ckarakoc.jellycash.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -23,19 +25,19 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(NotImplementedException.class)
-	public void handleNotImplementedException(NotImplementedException ex) {
-
+	public String handleNotImplementedException(NotImplementedException ex) {
+		return "Not implemented yet";
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-		boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
-
 		Map<String, Object> body = new HashMap<>();
 		body.put("timestamp", LocalDateTime.now());
 		body.put("error", "Internal Server Error");
 		body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-		if (isDev) body.put("message", ex.getMessage());
+		if (env.acceptsProfiles(Profiles.of("dev")) ||
+			env.acceptsProfiles(Profiles.of("test")))
+			body.put("message", ex.getMessage());
 
 		return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
@@ -55,8 +57,30 @@ public class GlobalExceptionHandler {
 				(msg1, msg2) -> msg1
 			));
 
-		body.put("errors", violations);
+		if (env.acceptsProfiles(Profiles.of("dev")) ||
+			env.acceptsProfiles(Profiles.of("test")))
+			body.put("errors", violations);
 
 		return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+		Map<String, String> errors = new HashMap<>();
+		ex.getBindingResult().getFieldErrors().forEach(error ->
+			errors.put(error.getField(), error.getDefaultMessage()));
+
+		ex.getBindingResult().getGlobalErrors().stream()
+			.filter(error -> Objects.equals(error.getCode(), "PasswordMatches"))
+			.forEach(error -> errors.put("password", error.getDefaultMessage()));
+
+		Map<String, Object> body = new HashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("status", HttpStatus.BAD_REQUEST.value());
+		body.put("error", "Validation Error");
+		if (env.acceptsProfiles(Profiles.of("dev")) ||
+			env.acceptsProfiles(Profiles.of("test")))
+			body.put("errors", errors);
+		return ResponseEntity.badRequest().body(body);
 	}
 }

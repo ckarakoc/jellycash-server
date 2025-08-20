@@ -24,12 +24,14 @@ public class User {
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String username;
 	@Column(nullable = false, unique = true)
 	private String email;
 	@Column(nullable = false)
 	private String password;
+
+	@Column
 	private String firstName;
 	private String lastName;
 	private String avatar = ""; // todo: location to default avatar image

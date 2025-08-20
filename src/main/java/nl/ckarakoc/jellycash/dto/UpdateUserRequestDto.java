@@ -9,9 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateUserResponseDto {
-	private String username;
-	private String email;
+public class UpdateUserRequestDto {
 	private String firstName;
 	private String lastName;
+	private String avatar;
+	private String currency;
+	private Long balance;
+	private Long income;
+	private Long expenses;
 }

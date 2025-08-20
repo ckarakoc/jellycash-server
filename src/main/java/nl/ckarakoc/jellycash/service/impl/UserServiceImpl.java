@@ -2,6 +2,9 @@ package nl.ckarakoc.jellycash.service.impl;
 
 import nl.ckarakoc.jellycash.dto.CreateUserRequestDto;
 import nl.ckarakoc.jellycash.dto.CreateUserResponseDto;
+import nl.ckarakoc.jellycash.dto.UpdateUserRequestDto;
+import nl.ckarakoc.jellycash.dto.UpdateUserResponseDto;
+import nl.ckarakoc.jellycash.exception.NotImplementedException;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.UserRepository;
 import nl.ckarakoc.jellycash.service.UserService;
@@ -23,5 +26,10 @@ public class UserServiceImpl implements UserService {
 		//todo: handle validation errors in the global exception handler
 		User created = userRepository.save(modelMapper.map(createUserRequestDto, User.class));
 		return modelMapper.map(created, CreateUserResponseDto.class);
+	}
+
+	@Override
+	public UpdateUserResponseDto updateUser(UpdateUserRequestDto updateUserRequestDto) {
+		throw new NotImplementedException();
 	}
 }

@@ -1,17 +1,22 @@
 package nl.ckarakoc.jellycash.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import nl.ckarakoc.jellycash.validator.Password;
 import nl.ckarakoc.jellycash.validator.PasswordMatches;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @PasswordMatches
 public class CreateUserRequestDto {
 	@NotNull
 	@NotBlank
+	@Size(max = 255)
 	private String username;
 
 	@Email
@@ -23,10 +28,19 @@ public class CreateUserRequestDto {
 	private String password;
 
 	@NotBlank
-	private String repeatedPassword;
+	@Password
+	private String confirmPassword;
 
+	@Size(max = 255)
 	private String firstName;
+
+	@Size(max = 255)
 	private String lastName;
+
+	@Size(max = 255)
 	private String avatar;
+
+	@Size(min = 3, max = 3)
+	@Pattern(regexp = "[A-Z]{3}")
 	private String currency = "EUR";
 }
