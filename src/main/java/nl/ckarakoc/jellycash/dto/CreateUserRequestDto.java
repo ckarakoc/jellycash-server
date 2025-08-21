@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import nl.ckarakoc.jellycash.validator.Password;
 import nl.ckarakoc.jellycash.validator.PasswordMatches;
 
+/**
+ * DTO for {@link nl.ckarakoc.jellycash.model.User}
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
