@@ -17,6 +17,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
@@ -28,6 +29,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     volumes:
@@ -35,5 +37,8 @@ services:
 
 volumes:
   jellycash-data:
+    driver: local
   grafana-data:
+    driver: local
   prometheus-data:
+    driver: local

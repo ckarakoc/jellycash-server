@@ -19,3 +19,18 @@ management:
   endpoint:
     prometheus:
       access: unrestricted
+
+  metrics:
+    tags:
+      application: jellycash
+    enable:
+      # Not needed for newer versions of Spring Boot, but for older versions, here it is...
+      jvm: true              # JVM memory, GC, threads
+      process: true          # Process uptime, CPU, open file descriptors
+      logback: true          # Logging events
+      system: true           # System CPU, memory
+      http: true             # HTTP request metrics (status, timing)
+      datasource: true       # JDBC / datasource pool metrics
+      cache: true            # Caching metrics (if you use Spring Cache)
+      tomcat: true           # If using embedded Tomcat
+      prometheus: true       # Prometheus binder (if needed)
