@@ -54,6 +54,14 @@ public class JwtService {
 		return refreshToken;
 	}
 
+	public <T extends User> RefreshToken generateRefreshToken(T userDetails, Date expiryDate) {
+		RefreshToken refreshToken = new RefreshToken();
+		refreshToken.setUser(userDetails);
+		refreshToken.setToken(buildToken(new HashMap<>(), userDetails, expiryDate));
+		refreshToken.setExpiryDate(expiryDate);
+		return refreshToken;
+	}
+
 	public boolean isTokenValid(String token) {
 		try {
 			Jwts.parser()
