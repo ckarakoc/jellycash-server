@@ -1,51 +1,91 @@
 package nl.ckarakoc.jellycash.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nl.ckarakoc.jellycash.config.AppConstants;
+import nl.ckarakoc.jellycash.dto.ApiError;
+import nl.ckarakoc.jellycash.exception.ApiException;
 import nl.ckarakoc.jellycash.security.service.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
+@Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final UserDetailsService userDetailsService;
-
-	public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-		this.jwtService = jwtService;
-		this.userDetailsService = userDetailsService;
-	}
+	private final ObjectMapper objectMapper;
 
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request,
 	                                @NonNull HttpServletResponse response,
 	                                @NonNull FilterChain filterChain) throws ServletException, IOException {
-		final String authorizationHeader = request.getHeader("Authorization");
-		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			filterChain.doFilter(request, response);
-			return;
+
+		String path = request.getRequestURI();
+		for (String s : AppConstants.NO_AUTH_ENDPOINTS) {
+			if (path.startsWith(s)) {
+				filterChain.doFilter(request, response);
+				return;
+			}
 		}
 
-		final String jwt = authorizationHeader.substring(7);
-		final String userEmail = jwtService.extractUsername(jwt);
-		if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-			if (jwtService.isTokenValid(jwt, userDetails)) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authToken);
+		Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
+		final String accessToken;
+
+
+		if (cookie != null) {
+			// Cookie based authentication
+			accessToken = cookie.getValue();
+		} else {
+			// Header based authentication
+			final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
+			if (authorizationHeader == null || !authorizationHeader.startsWith(AppConstants.JwtTokenPrefix.BEARER)) {
+				filterChain.doFilter(request, response);
+				return;
 			}
+			accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
+		}
+
+		try {
+			final String userEmail = jwtService.extractUsername(accessToken);
+			if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+				if (jwtService.isTokenValid(accessToken, userDetails)) {
+					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+				}
+			}
+		} catch (ApiException e) {
+			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Bad Request", e.getMessage());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.setContentType("application/json");
+			objectMapper.writeValue(response.getWriter(), apiError);
+		} catch (UsernameNotFoundException e) {
+			ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", "User not found");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+			objectMapper.writeValue(response.getWriter(), apiError);
+			return;
 		}
 		filterChain.doFilter(request, response);
 	}

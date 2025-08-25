@@ -2,6 +2,7 @@ package nl.ckarakoc.jellycash.manager.impl;
 
 import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.dto.*;
+import nl.ckarakoc.jellycash.exception.AuthenticationException;
 import nl.ckarakoc.jellycash.manager.AuthManager;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
@@ -12,12 +13,14 @@ import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.RoleService;
 import nl.ckarakoc.jellycash.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -32,9 +35,10 @@ public class AuthManagerImpl implements AuthManager {
 	private final AuthenticationManager authenticationManager;
 	private final RefreshTokenRepository refreshTokenRepository;
 
+	@Transactional
 	@Override
 	public AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto) {
-		if (userService.existsByEmail(requestDto.getEmail())) throw new RuntimeException("Email already exists");
+		if (userService.existsByEmail(requestDto.getEmail())) throw new AuthenticationException("Email already exists");
 
 		User user = modelMapper.map(requestDto, User.class);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -54,11 +58,17 @@ public class AuthManagerImpl implements AuthManager {
 	}
 
 	@Override
-	public AuthLoginResponseDto login(AuthLoginRequestDto requestDto) {
+	public AuthLoginResponseDto login(AuthLoginRequestDto requestDto, String accessToken) {
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword()));
 		User user = (User) authentication.getPrincipal();
 
-		String accessToken = jwtService.generateToken(user);
+		if (!user.isEnabled()) throw new AuthenticationException("User is disabled");
+		if (!user.isAccountNonExpired()) throw new AuthenticationException("User account has expired");
+		if (!user.isAccountNonLocked()) throw new AuthenticationException("User account is locked");
+		if (!user.isCredentialsNonExpired()) throw new AuthenticationException("User credentials have expired");
+
+		if (accessToken == null) // no cookies
+			accessToken = jwtService.generateToken(user);
 
 		RefreshToken updated = refreshTokenRepository.findByUser(user)
 			.orElse(new RefreshToken());
@@ -76,14 +86,14 @@ public class AuthManagerImpl implements AuthManager {
 	public AuthRefreshResponseDto refresh(AuthRefreshRequestDto requestDto) {
 		String refreshToken = requestDto.getRefreshToken();
 
-		if (refreshToken == null) throw new RuntimeException("Refresh token is null");
-		if (!jwtService.isTokenValid(refreshToken)) throw new RuntimeException("Refresh token is invalid");
+		if (refreshToken == null) throw new AuthenticationException("Refresh token is null");
+		if (!jwtService.isTokenValid(refreshToken)) throw new AuthenticationException("Refresh token is invalid");
 
 		String email = jwtService.extractUsername(refreshToken);
 		User user = userService.findByEmail(email);
 
 		if (!refreshTokenRepository.existsByTokenAndUser(refreshToken, user)) {
-			throw new RuntimeException("Refresh token expired");
+			throw new AuthenticationException("Refresh token expired");
 		}
 
 		return new AuthRefreshResponseDto(jwtService.generateToken(user), refreshToken);
@@ -92,10 +102,26 @@ public class AuthManagerImpl implements AuthManager {
 	@Override
 	public AuthLogoutResponseDto logout(AuthLogoutRequestDto requestDto) {
 		String refreshToken = requestDto.getRefreshToken();
-		if (refreshToken == null) throw new RuntimeException("Refresh token is required for logout");
+		if (refreshToken == null) throw new AuthenticationException("Refresh token is required for logout");
 		refreshTokenRepository.deleteByToken(refreshToken);
 		SecurityContextHolder.clearContext();
 
 		return new AuthLogoutResponseDto(true);
+	}
+
+	private void deleteRefreshToken(String refreshToken) {
+		refreshTokenRepository.deleteByToken(refreshToken);
+	}
+
+	@Override
+	public LoggedInUserDto getLoggedInUserInfo() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
+			throw new AuthenticationException("No user authenticated");
+
+		String email = authentication.getName();
+
+		User user = userService.findByEmail(email);
+		return modelMapper.map(user, LoggedInUserDto.class);
 	}
 }

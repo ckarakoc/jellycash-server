@@ -1,11 +1,12 @@
 package nl.ckarakoc.jellycash.security.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nl.ckarakoc.jellycash.config.AppConstants;
+import nl.ckarakoc.jellycash.exception.ApiException;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class JwtService {
 	@Value("${security.jwt.secret-key}")
 	private String secretKey;
-	@Value("${security.jwt.expiration-time}")
-	private long jwtExpiration;
-	@Value("${security.jwt.refresh-expiration-time}")
-	private long refreshExpiration;
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -42,16 +40,11 @@ public class JwtService {
 	}
 
 	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-		return buildToken(extraClaims, userDetails, new Date(System.currentTimeMillis() + jwtExpiration));
+		return buildToken(extraClaims, userDetails, new Date(System.currentTimeMillis() + AppConstants.JwtTokenExpiry.ACCESS_TOKEN_EXPIRY.toMillis()));
 	}
 
 	public <T extends User> RefreshToken generateRefreshToken(T userDetails) {
-		Date expiry = new Date(System.currentTimeMillis() + refreshExpiration);
-		RefreshToken refreshToken = new RefreshToken();
-		refreshToken.setUser(userDetails);
-		refreshToken.setToken(buildToken(new HashMap<>(), userDetails, expiry));
-		refreshToken.setExpiryDate(expiry);
-		return refreshToken;
+		return generateRefreshToken(userDetails, new Date(System.currentTimeMillis() + AppConstants.JwtTokenExpiry.REFRESH_TOKEN_EXPIRY.toMillis()));
 	}
 
 	public <T extends User> RefreshToken generateRefreshToken(T userDetails, Date expiryDate) {
@@ -63,15 +56,8 @@ public class JwtService {
 	}
 
 	public boolean isTokenValid(String token) {
-		try {
-			Jwts.parser()
-				.verifyWith(getSignInKey())
-				.build()
-				.parseSignedClaims(token);
-			return !isTokenExpired(token);
-		} catch (JwtException | IllegalArgumentException e) {
-			return false;
-		}
+		parseJwts(token);
+		return !isTokenExpired(token);
 	}
 
 	public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -88,12 +74,27 @@ public class JwtService {
 	}
 
 	private Claims extractAllClaims(String token) {
-		return Jwts
-			.parser()
-			.verifyWith(getSignInKey())
-			.build()
-			.parseSignedClaims(token)
+		return parseJwts(token)
 			.getPayload();
+	}
+
+	private Jws<Claims> parseJwts(String token) {
+		try {
+			return Jwts
+				.parser()
+				.verifyWith(getSignInKey())
+				.build()
+				.parseSignedClaims(token);
+		} catch (UnsupportedJwtException e) {
+			log.error("unsupported jwt exception: {}", e.getMessage());
+			throw new ApiException("the jwt argument does not represent a signed Claims JWT");
+		} catch (JwtException e) {
+			log.error("jwt exception: {}", e.getMessage());
+			throw new ApiException("the jwt string cannot be parsed or validated as required");
+		} catch (IllegalArgumentException e) {
+			log.error("illegal argument exception: {}", e.getMessage());
+			throw new ApiException("jwt string is null or empty or only whitespace");
+		}
 	}
 
 	private SecretKey getSignInKey() {

@@ -1,13 +1,18 @@
 package nl.ckarakoc.jellycash.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
+import nl.ckarakoc.jellycash.dto.ApiError;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -15,14 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+@RequiredArgsConstructor
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	private final Environment env;
-
-	public GlobalExceptionHandler(Environment env) {
-		this.env = env;
-	}
 
 	@ExceptionHandler(NotImplementedException.class)
 	public String handleNotImplementedException(NotImplementedException ex) {
@@ -38,17 +40,41 @@ public class GlobalExceptionHandler {
 		if (env.acceptsProfiles(Profiles.of("dev")) ||
 			env.acceptsProfiles(Profiles.of("test")))
 			body.put("message", ex.getMessage());
-
 		return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", LocalDateTime.now());
-		body.put("status", HttpStatus.BAD_REQUEST.value());
-		body.put("error", "Constraint Violation");
+	@ExceptionHandler(ApiException.class)
+	public ResponseEntity<ApiError> handleApiException(ApiException ex) {
+		ApiError apiError = new ApiError(HttpStatus.I_AM_A_TEAPOT.value(), "Api Error", ex.getMessage());
+		return new ResponseEntity<>(apiError, HttpStatus.I_AM_A_TEAPOT);
+	}
 
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<ApiError> handleApiException(AuthenticationException ex) {
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Authentication Error", ex.getMessage());
+		return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(MalformedJwtException.class)
+	public ResponseEntity<ApiError> handleMalformedJwtException(MalformedJwtException ex) {
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token", ex.getMessage());
+		return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(ExpiredJwtException.class)
+	public ResponseEntity<ApiError> handleExpiredJwtException(ExpiredJwtException ex) {
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "JWT token is expired", ex.getMessage());
+		return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(UnsupportedJwtException.class)
+	public ResponseEntity<ApiError> handleUnsupportedJwtException(UnsupportedJwtException ex) {
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "JWT token is unsupported", ex.getMessage());
+		return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex) {
 		Map<String, String> violations = ex.getConstraintViolations()
 			.stream()
 			.collect(Collectors.toMap(
@@ -57,15 +83,14 @@ public class GlobalExceptionHandler {
 				(msg1, msg2) -> msg1
 			));
 
-		if (env.acceptsProfiles(Profiles.of("dev")) ||
-			env.acceptsProfiles(Profiles.of("test")))
-			body.put("errors", violations);
 
-		return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Constraint Violation", violations);
+
+		return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
 		Map<String, String> errors = new HashMap<>();
 		ex.getBindingResult().getFieldErrors().forEach(error ->
 			errors.put(error.getField(), error.getDefaultMessage()));
@@ -74,13 +99,12 @@ public class GlobalExceptionHandler {
 			.filter(error -> Objects.equals(error.getCode(), "PasswordMatches"))
 			.forEach(error -> errors.put("password", error.getDefaultMessage()));
 
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", LocalDateTime.now());
-		body.put("status", HttpStatus.BAD_REQUEST.value());
-		body.put("error", "Validation Error");
-		if (env.acceptsProfiles(Profiles.of("dev")) ||
-			env.acceptsProfiles(Profiles.of("test")))
-			body.put("errors", errors);
-		return ResponseEntity.badRequest().body(body);
+		ApiError apiError = new ApiError(
+			HttpStatus.BAD_REQUEST.value(),
+			"Validation Error",
+			errors
+		);
+
+		return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 	}
 }
