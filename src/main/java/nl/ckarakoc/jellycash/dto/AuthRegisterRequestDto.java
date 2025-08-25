@@ -9,25 +9,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.ckarakoc.jellycash.validator.Password;
+import nl.ckarakoc.jellycash.validator.PasswordMatches;
 
-
-// todo: refactor (for use for admins)
-
-/**
- * DTO for {@link nl.ckarakoc.jellycash.model.User}
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateUserRequestDto {
-	@Email
+@PasswordMatches
+public class AuthRegisterRequestDto {
 	@NotBlank
+	@Email
 	private String email;
 
 	@NotBlank
 	@Password
 	private String password;
+
+	@NotBlank
+	@Password
+	private String confirmPassword;
 
 	@Size(max = 255)
 	private String firstName;

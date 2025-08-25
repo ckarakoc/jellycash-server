@@ -1,30 +1,28 @@
 package nl.ckarakoc.jellycash.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
+@Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
-	@Column(nullable = false)
-	private String username;
 	@Column(nullable = false, unique = true)
 	private String email;
 	@Column(nullable = false)
@@ -37,7 +35,69 @@ public class User {
 	private Long balance = 0L;
 	private Long income = 0L;
 	private Long expenses = 0L;
-	private Boolean isAdmin = false;
+
+	//region security
+	@Column(nullable = false)
+	private boolean enabled = true;
+
+	@Column(nullable = false)
+	private boolean accountNonExpired = true;
+
+	@Column(nullable = false)
+	private boolean accountNonLocked = true;
+
+	@Column(nullable = false)
+	private boolean credentialsNonExpired = true;
+
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private RefreshToken refreshToken;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return getRoles().stream()
+			.map(a -> new SimpleGrantedAuthority("ROLE_" + a.getRole().name()))
+			.toList();
+	}
+
+	@Override
+	public String getUsername() {
+		return email;
+	}
+
+	@Override
+	public String getPassword() {
+		return password;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return this.accountNonExpired;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return this.accountNonLocked;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return this.credentialsNonExpired;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+	//endregion
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+		name = "user_roles",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "role_id")
+	)
+	@ToString.Exclude
+	private Set<Role> roles = new HashSet<>();
 
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false, nullable = false)

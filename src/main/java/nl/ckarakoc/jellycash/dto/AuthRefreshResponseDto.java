@@ -5,15 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO for {@link nl.ckarakoc.jellycash.model.User}
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateUserResponseDto {
-	private String email;
-	private String firstName;
-	private String lastName;
+public class AuthRefreshResponseDto {
+	private String accessToken;
+	private String refreshToken;
 }

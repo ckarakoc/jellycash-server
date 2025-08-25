@@ -1,5 +1,6 @@
 package nl.ckarakoc.jellycash.manager.impl;
 
+import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.manager.ReportingManager;
 import nl.ckarakoc.jellycash.service.BudgetService;
 import nl.ckarakoc.jellycash.service.CategoryService;
@@ -12,15 +13,10 @@ import org.springframework.stereotype.Service;
 // - Use BudgetService for comparisons
 // Generate monthly spending reports, trend analysis, etc.
 
+@RequiredArgsConstructor
 @Service
 public class ReportingManagerImpl implements ReportingManager {
-	final TransactionService transactionService;
-	final BudgetService budgetService;
-	final CategoryService categoryService;
-
-	public ReportingManagerImpl(TransactionService transactionService, BudgetService budgetService, CategoryService categoryService) {
-		this.transactionService = transactionService;
-		this.budgetService = budgetService;
-		this.categoryService = categoryService;
-	}
+	private final TransactionService transactionService;
+	private final BudgetService budgetService;
+	private final CategoryService categoryService;
 }

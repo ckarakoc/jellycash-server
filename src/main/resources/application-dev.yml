@@ -10,6 +10,29 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+    open-in-view: true
+  security:
+    user:
+      name: prometheus
+      password: prometheus
+
+security:
+  jwt:
+    secret-key: 45be4658b1047019f96eeb6920d7ae0d90e21ce324d8940b9fcc2f1809bc8a2a
+    #expiration-time: 3600000 # 1 hour
+    #refresh-expiration-time: 86400000 # 24 hours
+    expiration-time: 86400000 # 24 hours
+    refresh-expiration-time: 604800000 # 7 days
+
+logging:
+  level:
+    root: INFO
+    nl.ckarakoc.jellycash: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 management:
   endpoints:

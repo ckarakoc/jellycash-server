@@ -76,4 +76,5 @@ buildNumber.properties
 application*.properties
 application*.yml
 !application-dev.*
-!application-test.*
+
+/ignored

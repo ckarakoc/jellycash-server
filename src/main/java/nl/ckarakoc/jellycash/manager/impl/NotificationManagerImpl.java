@@ -1,5 +1,6 @@
 package nl.ckarakoc.jellycash.manager.impl;
 
+import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.manager.NotificationManager;
 import nl.ckarakoc.jellycash.service.BudgetService;
 import nl.ckarakoc.jellycash.service.PotService;
@@ -12,15 +13,10 @@ import org.springframework.stereotype.Service;
 // - Call PotService to check if savings goals reached
 // Send appropriate notifications based on all these checks
 
+@RequiredArgsConstructor
 @Service
 public class NotificationManagerImpl implements NotificationManager {
-	final BudgetService budgetService;
-	final RecurringBillService recurringBillService;
-	final PotService potService;
-
-	public NotificationManagerImpl(BudgetService budgetService, RecurringBillService recurringBillService, PotService potService) {
-		this.budgetService = budgetService;
-		this.recurringBillService = recurringBillService;
-		this.potService = potService;
-	}
+	private final BudgetService budgetService;
+	private final RecurringBillService recurringBillService;
+	private final PotService potService;
 }
