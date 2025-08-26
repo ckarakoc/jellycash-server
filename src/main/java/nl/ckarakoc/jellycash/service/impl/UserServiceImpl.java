@@ -24,11 +24,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
-		//todo: handle validation errors in the global exception handler
-//		User user = modelMapper.map(createUserRequestDto, User.class);
-//		user.setPassword(passwordEncoder.encode(user.getPassword()));
-//		User created = userRepository.save(user);
-//		return modelMapper.map(created, CreateUserResponseDto.class);
 		throw new NotImplementedException();
 	}
 

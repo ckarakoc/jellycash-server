@@ -53,7 +53,6 @@ public class SecurityConfig {
 			})
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-			//.logout(logout -> logout.logoutUrl("/logout").invalidateHttpSession(true)) //todo: handle logout
 			.build();
 	}
 

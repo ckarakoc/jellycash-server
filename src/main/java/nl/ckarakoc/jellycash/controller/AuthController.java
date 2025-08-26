@@ -66,8 +66,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<AuthRegisterResponseDto> register(@RequestBody @Valid AuthRegisterRequestDto authRegisterRequestDto,
-	                                                        HttpServletResponse response) {
+	public ResponseEntity<AuthRegisterResponseDto> register(@RequestBody @Valid AuthRegisterRequestDto authRegisterRequestDto, HttpServletResponse response) {
 		AuthRegisterResponseDto tokens = authManager.register(authRegisterRequestDto);
 		ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN, tokens.getAccessToken())
 			.httpOnly(true)

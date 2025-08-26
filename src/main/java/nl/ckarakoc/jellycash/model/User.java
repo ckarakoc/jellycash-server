@@ -106,19 +106,19 @@ public class User implements UserDetails {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@ToString.Exclude
 	private List<Pot> pots;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@ToString.Exclude
 	private List<Budget> budgets;
 
-	@OneToMany(mappedBy = "sender")
+	@OneToMany(mappedBy = "sender", cascade = { CascadeType.PERSIST, CascadeType.MERGE})
 	@ToString.Exclude
 	private List<Transaction> sentTransactions;
 
-	@OneToMany(mappedBy = "recipient")
+	@OneToMany(mappedBy = "recipient", cascade = { CascadeType.PERSIST, CascadeType.MERGE})
 	@ToString.Exclude
 	private List<Transaction> receivedTransactions;
 

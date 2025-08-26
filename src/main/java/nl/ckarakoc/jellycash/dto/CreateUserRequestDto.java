@@ -10,9 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.ckarakoc.jellycash.validator.Password;
 
-
-// todo: refactor (for use for admins)
-
 /**
  * DTO for {@link nl.ckarakoc.jellycash.model.User}
  */

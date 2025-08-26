@@ -42,8 +42,9 @@ public class Transaction {
 	@JoinColumn(name = "recipient_id")
 	private User recipient;
 
-	@ManyToOne
-	@JoinColumn(name = "recurring_bill_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "recurring_bill_id", nullable = true)
+	@ToString.Exclude
 	private RecurringBill recurringBill;
 
 	@Override

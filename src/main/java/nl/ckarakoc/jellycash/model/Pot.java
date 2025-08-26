@@ -39,7 +39,7 @@ public class Pot {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToMany(mappedBy = "pot")
+	@OneToMany(mappedBy = "pot", cascade = CascadeType.ALL, orphanRemoval = true)
 	@ToString.Exclude
 	private List<PotTransaction> potTransactions;
 

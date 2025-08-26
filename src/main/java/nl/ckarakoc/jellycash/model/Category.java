@@ -34,7 +34,9 @@ public class Category {
 	@ToString.Exclude
 	private List<Transaction> transactions;
 
-	@OneToMany(mappedBy = "category")
+	// todo: should removing a category remove all budgets?
+	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+	//@OneToMany(mappedBy = "category")
 	@ToString.Exclude
 	private List<Budget> budgets;
 

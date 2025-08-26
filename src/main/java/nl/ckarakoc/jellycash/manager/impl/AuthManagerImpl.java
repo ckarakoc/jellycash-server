@@ -109,10 +109,6 @@ public class AuthManagerImpl implements AuthManager {
 		return new AuthLogoutResponseDto(true);
 	}
 
-	private void deleteRefreshToken(String refreshToken) {
-		refreshTokenRepository.deleteByToken(refreshToken);
-	}
-
 	@Override
 	public LoggedInUserDto getLoggedInUserInfo() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
