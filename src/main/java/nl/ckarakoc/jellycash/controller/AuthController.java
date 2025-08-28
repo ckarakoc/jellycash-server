@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants;
 import nl.ckarakoc.jellycash.dto.*;
 import nl.ckarakoc.jellycash.manager.AuthManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,7 +67,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<AuthRegisterResponseDto> register(@RequestBody @Valid AuthRegisterRequestDto authRegisterRequestDto, HttpServletResponse response) {
+	public ResponseEntity<Void> register(@RequestBody @Valid AuthRegisterRequestDto authRegisterRequestDto, HttpServletResponse response) {
 		AuthRegisterResponseDto tokens = authManager.register(authRegisterRequestDto);
 		ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN, tokens.getAccessToken())
 			.httpOnly(true)
@@ -85,7 +86,7 @@ public class AuthController {
 
 		response.addHeader("Set-Cookie", accessCookie.toString());
 		response.addHeader("Set-Cookie", refreshCookie.toString());
-		return ResponseEntity.ok(tokens);
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/refresh")
@@ -114,6 +115,16 @@ public class AuthController {
 	@GetMapping("/me")
 	public ResponseEntity<LoggedInUserDto> loggedInUserInfo() {
 		return ResponseEntity.ok(authManager.getLoggedInUserInfo());
+	}
+
+	@GetMapping("/status")
+	public ResponseEntity<AuthStatusDto> status(HttpServletRequest request) {
+		Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
+		if (cookie == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthStatusDto(false));
+
+		AuthStatusDto status = authManager.checkAuthenticationStatus(cookie.getValue());
+		if (!status.isAuthenticated()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(status);
+		return ResponseEntity.ok(status);
 	}
 
 }

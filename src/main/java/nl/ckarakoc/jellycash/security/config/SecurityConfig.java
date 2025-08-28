@@ -4,7 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import nl.ckarakoc.jellycash.model.enums.AppRole;
+import nl.ckarakoc.jellycash.model.AppRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,8 +24,10 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -37,6 +39,16 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
 			.csrf(csrf -> csrf.disable()) // disable csrf for now
+			.cors(cors -> {
+				cors.configurationSource(config -> {
+					CorsConfiguration configuration = new CorsConfiguration();
+					configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+					configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+					configuration.setAllowedHeaders(List.of("*"));
+					configuration.setAllowCredentials(true);
+					return configuration;
+				});
+			})
 			.authorizeHttpRequests(authorize -> {
 				// Swagger UI paths
 				authorize.requestMatchers("/swagger-ui/**").permitAll()

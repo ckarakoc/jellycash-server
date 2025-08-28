@@ -41,8 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	                                @NonNull FilterChain filterChain) throws ServletException, IOException {
 
 		String path = request.getRequestURI();
-		for (String s : AppConstants.NO_AUTH_ENDPOINTS) {
-			if (path.startsWith(s)) {
+		for (String noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
+			if (path.startsWith(noAuthRequiredEndpoint)) {
 				filterChain.doFilter(request, response);
 				return;
 			}
@@ -56,6 +56,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// Cookie based authentication
 			accessToken = cookie.getValue();
 		} else {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		/*else {
 			// Header based authentication
 			final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
 			if (authorizationHeader == null || !authorizationHeader.startsWith(AppConstants.JwtTokenPrefix.BEARER)) {
@@ -63,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 			accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
-		}
+		}*/
 
 		try {
 			final String userEmail = jwtService.extractUsername(accessToken);
@@ -85,7 +89,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setContentType("application/json");
 			objectMapper.writeValue(response.getWriter(), apiError);
-			return;
 		}
 		filterChain.doFilter(request, response);
 	}

@@ -17,7 +17,7 @@ public class AppConstants {
 	}
 
 	public static class JwtTokenExpiry {
-		public static final Duration ACCESS_TOKEN_EXPIRY = Duration.ofDays(1);
+		public static final Duration ACCESS_TOKEN_EXPIRY = Duration.ofMinutes(15);
 		public static final Duration REFRESH_TOKEN_EXPIRY = Duration.ofDays(7);
 	}
 

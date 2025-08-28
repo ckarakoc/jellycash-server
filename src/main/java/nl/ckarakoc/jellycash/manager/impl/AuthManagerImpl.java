@@ -2,12 +2,13 @@ package nl.ckarakoc.jellycash.manager.impl;
 
 import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.dto.*;
+import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.exception.AuthenticationException;
 import nl.ckarakoc.jellycash.manager.AuthManager;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
-import nl.ckarakoc.jellycash.model.enums.AppRole;
+import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.RoleService;
@@ -38,7 +39,7 @@ public class AuthManagerImpl implements AuthManager {
 	@Transactional
 	@Override
 	public AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto) {
-		if (userService.existsByEmail(requestDto.getEmail())) throw new AuthenticationException("Email already exists");
+		if (userService.existsByEmail(requestDto.getEmail())) throw new AuthenticationConflictException("Email already exists");
 
 		User user = modelMapper.map(requestDto, User.class);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -120,4 +121,17 @@ public class AuthManagerImpl implements AuthManager {
 		User user = userService.findByEmail(email);
 		return modelMapper.map(user, LoggedInUserDto.class);
 	}
+
+	/**
+	 * Lightweight check whether the user is authenticated or not.
+	 *
+	 * @param token the Jwt token
+	 * @return the authentication status
+	 */
+	@Override
+	public AuthStatusDto checkAuthenticationStatus(String token) {
+		if (jwtService.isTokenValid(token)) return new AuthStatusDto(true);
+		return new AuthStatusDto(false);
+	}
+
 }

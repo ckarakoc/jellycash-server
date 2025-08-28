@@ -1,0 +1,14 @@
+package nl.ckarakoc.jellycash.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class AuthStatusDto {
+	private boolean authenticated;
+}

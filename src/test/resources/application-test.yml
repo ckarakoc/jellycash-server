@@ -11,3 +11,7 @@ spring:
   h2:
     console:
       enabled: true
+
+security:
+  jwt:
+    secret-key: 45be4658b1047019f96eeb6920d7ae0d90e21ce324d8940b9fcc2f1809bc8a2a

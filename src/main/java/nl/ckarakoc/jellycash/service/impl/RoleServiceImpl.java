@@ -1,7 +1,7 @@
 package nl.ckarakoc.jellycash.service.impl;
 
 import nl.ckarakoc.jellycash.model.Role;
-import nl.ckarakoc.jellycash.model.enums.AppRole;
+import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.repository.RoleRepository;
 import nl.ckarakoc.jellycash.service.RoleService;
 import org.springframework.stereotype.Service;

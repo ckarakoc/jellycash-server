@@ -49,12 +49,6 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(apiError, HttpStatus.I_AM_A_TEAPOT);
 	}
 
-	@ExceptionHandler(AuthenticationException.class)
-	public ResponseEntity<ApiError> handleApiException(AuthenticationException ex) {
-		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Authentication Error", ex.getMessage());
-		return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
-	}
-
 	@ExceptionHandler(MalformedJwtException.class)
 	public ResponseEntity<ApiError> handleMalformedJwtException(MalformedJwtException ex) {
 		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token", ex.getMessage());

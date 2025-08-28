@@ -12,4 +12,6 @@ public interface AuthManager {
 	AuthLogoutResponseDto logout(AuthLogoutRequestDto requestDto);
 
 	LoggedInUserDto getLoggedInUserInfo();
+
+	AuthStatusDto checkAuthenticationStatus(String token);
 }

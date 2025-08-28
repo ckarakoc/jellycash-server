@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
-import nl.ckarakoc.jellycash.model.enums.AppRole;
+import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.repository.RoleRepository;
 import nl.ckarakoc.jellycash.repository.UserRepository;

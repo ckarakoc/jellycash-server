@@ -15,6 +15,9 @@ spring:
     user:
       name: prometheus
       password: prometheus
+  devtools:
+    restart:
+      enabled: false
 
 security:
   jwt:
