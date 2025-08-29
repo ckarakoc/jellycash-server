@@ -9,11 +9,14 @@ import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
+import nl.ckarakoc.jellycash.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
 
@@ -23,26 +26,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-public class AuthServiceTests {
+class AuthServiceTests extends BaseServiceTest{
 
-	@Autowired
-	private AuthService authService;
-	//	@MockitoBean
-	//	private ModelMapper modelMapper;
-	//	@MockitoBean
-	//	private PasswordEncoder passwordEncoder;
-	@MockitoBean
+	@Mock
 	private JwtService jwtService;
-	@MockitoBean
+	@Mock
 	private UserService userService;
-	@MockitoBean
+	@Mock
 	private RoleService roleService;
-	@MockitoBean
+
+	@Spy
+	private ModelMapper modelMapper = new ModelMapper();
+	@Mock
+	private PasswordEncoder passwordEncoder;
+	@Mock
 	private AuthenticationManager authenticationManager;
-	@MockitoBean
+	@Mock
 	private RefreshTokenRepository refreshTokenRepository;
 
+	@InjectMocks
+	private AuthServiceImpl authService;
 
 	@Test
 	void shouldThrowConflict_whenEmailAlreadyExists() {
@@ -62,7 +65,7 @@ public class AuthServiceTests {
 	}
 
 	@Test
-	public void shouldReturnTokens_whenValidRequest_register() {
+	void shouldReturnTokens_whenValidRequest_register() {
 		AuthRegisterRequestDto dto = AuthRegisterRequestDto.builder()
 			.email("mark@rutte.nl")
 			.password("Vergeten@123")
@@ -81,19 +84,20 @@ public class AuthServiceTests {
 		refresh.setToken("refresh-token-123");
 		refresh.setExpiryDate(new Date());
 
-
 		when(userService.existsByEmail(dto.getEmail())).thenReturn(false);
 		when(roleService.getRole(AppRole.USER)).thenReturn(role);
-		when(userService.save(any())).thenReturn(user);
-		when(jwtService.generateToken(any())).thenReturn("access-token");
-		when(jwtService.generateRefreshToken(any())).thenReturn(refresh);
-		when(refreshTokenRepository.save(any())).thenReturn(refresh);
+		when(userService.save(any(User.class))).thenReturn(user);
+		when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
+		when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refresh);
+		when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refresh);
 
 		AuthRegisterResponseDto tokens = authService.register(dto);
 
 		assertThat(tokens.getAccessToken()).isEqualTo("access-token");
 		assertThat(tokens.getRefreshToken()).isEqualTo("refresh-token-123");
+
 		verify(userService).save(any(User.class));
 		verify(refreshTokenRepository).save(refresh);
 	}
 }
+

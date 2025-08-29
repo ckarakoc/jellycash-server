@@ -1,7 +1,9 @@
 package nl.ckarakoc.jellycash.stupid;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +13,8 @@ import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false)
 public class MockitoTests {
 
 	@Test

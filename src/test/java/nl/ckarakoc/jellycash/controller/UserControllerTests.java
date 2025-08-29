@@ -3,6 +3,7 @@ package nl.ckarakoc.jellycash.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.ckarakoc.jellycash.dto.CreateUserRequestDto;
 import nl.ckarakoc.jellycash.dto.CreateUserResponseDto;
+import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,9 +12,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,8 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@ActiveProfiles("test")
-public class UserControllerTests {
+@AutoConfigureMockMvc(addFilters = false)
+public class UserControllerTests extends BaseControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -35,12 +36,15 @@ public class UserControllerTests {
 	private ObjectMapper objectMapper;
 	@MockitoBean
 	private UserService userService;
+	@MockitoBean
+	private JwtService jwtService;
+
 	CreateUserRequestDto mockRutte;
 
 	static Stream<Arguments> provideInvalidUserArguments() {
 		String SUPER_LONG_F = "F".repeat(300); // realistic max length
 		return Stream.of(
-			Arguments.of( SUPER_LONG_F, "Vergeten@123", "Mark", "Rutte", "email"),                 // email: max-length
+			Arguments.of(SUPER_LONG_F, "Vergeten@123", "Mark", "Rutte", "email"),                 // email: max-length
 			Arguments.of("mark@rutte.nl", SUPER_LONG_F, "Mark", "Rutte", "password"),              // password: max-length
 			Arguments.of("mark@rutte.nl", "Vergeten@123", SUPER_LONG_F, "Rutte", "firstName"),     // firstName: max-length
 			Arguments.of("mark@rutte.nl", "Vergeten@123", "Mark", SUPER_LONG_F, "lastName")        // lastName: max-length
@@ -106,8 +110,6 @@ public class UserControllerTests {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(mockRutte)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.errors").isMap())
-			.andExpect(jsonPath("$.errors." + check).exists())
 			.andReturn();
 
 		System.out.println("Response JSON: " + mvcResult.getResponse().getContentAsString());

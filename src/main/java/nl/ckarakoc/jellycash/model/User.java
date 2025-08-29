@@ -30,24 +30,33 @@ public class User implements UserDetails {
 	private String password;
 	private String firstName;
 	private String lastName;
+	@Builder.Default
 	private String avatar = ""; // todo: location to default avatar image
 	@Column(length = 3)
+	@Builder.Default
 	private String currency = "EUR";
+	@Builder.Default
 	private Long balance = 0L;
+	@Builder.Default
 	private Long income = 0L;
+	@Builder.Default
 	private Long expenses = 0L;
 
 	//region security
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean enabled = true;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean accountNonExpired = true;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean accountNonLocked = true;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean credentialsNonExpired = true;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -98,6 +107,7 @@ public class User implements UserDetails {
 		inverseJoinColumns = @JoinColumn(name = "role_id")
 	)
 	@ToString.Exclude
+	@Builder.Default
 	private Set<Role> roles = new HashSet<>();
 
 	@CreationTimestamp

@@ -40,5 +40,6 @@ public class AuthRegisterRequestDto {
 
 	@Size(min = 3, max = 3)
 	@Pattern(regexp = "[A-Z]{3}")
+	@Builder.Default
 	private String currency = "EUR";
 }

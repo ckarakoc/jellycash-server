@@ -28,11 +28,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("test")
-public class AuthControllerTests {
+public class AuthControllerTests extends BaseControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
