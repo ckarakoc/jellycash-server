@@ -1,10 +1,10 @@
-package nl.ckarakoc.jellycash.manager.impl;
+package nl.ckarakoc.jellycash.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.dto.*;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.exception.AuthenticationException;
-import nl.ckarakoc.jellycash.manager.AuthManager;
+import nl.ckarakoc.jellycash.service.AuthService;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
-public class AuthManagerImpl implements AuthManager {
+public class AuthServiceImpl implements AuthService {
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;

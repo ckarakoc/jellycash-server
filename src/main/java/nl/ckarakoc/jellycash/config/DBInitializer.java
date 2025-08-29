@@ -11,6 +11,7 @@ import nl.ckarakoc.jellycash.repository.RoleRepository;
 import nl.ckarakoc.jellycash.repository.UserRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
+@Profile("!test")
 public class DBInitializer implements CommandLineRunner {
 
 	private final RefreshTokenRepository refreshTokenRepository;

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants;
 import nl.ckarakoc.jellycash.dto.*;
-import nl.ckarakoc.jellycash.manager.AuthManager;
+import nl.ckarakoc.jellycash.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import org.springframework.web.util.WebUtils;
 @RequestMapping("/auth")
 public class AuthController {
 
-	private final AuthManager authManager;
+	private final AuthService authService;
 	// todo: /auth/forgot-password | /auth/reset-password ( | /auth/verify-email | /auth/verify-phone | /auth/resend-verification )
 
 	@PostMapping("/login")
@@ -30,7 +30,7 @@ public class AuthController {
 		@CookieValue(name = AppConstants.JwtCookieNames.ACCESS_TOKEN, required = false) String accessToken,
 		@RequestBody @Valid AuthLoginRequestDto authLoginRequestDto) {
 		log.info("Access token: {}", accessToken);
-		return ResponseEntity.ok(authManager.login(authLoginRequestDto, accessToken));
+		return ResponseEntity.ok(authService.login(authLoginRequestDto, accessToken));
 	}
 
 	@PostMapping("/logout")
@@ -60,15 +60,15 @@ public class AuthController {
 
 		if (refreshCookie != null) {
 			// Deletes refresh token from database (cookie)
-			authManager.logout(new AuthLogoutRequestDto(refreshCookie.getValue()));
+			authService.logout(new AuthLogoutRequestDto(refreshCookie.getValue()));
 		}
 		// Deletes refresh token from database (client)
-		return ResponseEntity.ok(authManager.logout(authLogoutRequestDto));
+		return ResponseEntity.ok(authService.logout(authLogoutRequestDto));
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<Void> register(@RequestBody @Valid AuthRegisterRequestDto authRegisterRequestDto, HttpServletResponse response) {
-		AuthRegisterResponseDto tokens = authManager.register(authRegisterRequestDto);
+		AuthRegisterResponseDto tokens = authService.register(authRegisterRequestDto);
 		ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN, tokens.getAccessToken())
 			.httpOnly(true)
 			.secure(true)
@@ -96,10 +96,10 @@ public class AuthController {
 		Cookie refreshCookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.REFRESH_TOKEN);
 		if (refreshCookie == null) {
 			// We go the Header based authentication route
-			return ResponseEntity.ok(authManager.refresh(authRefreshRequestDto));
+			return ResponseEntity.ok(authService.refresh(authRefreshRequestDto));
 		}
 
-		AuthRefreshResponseDto tokens = authManager.refresh(new AuthRefreshRequestDto(refreshCookie.getValue()));
+		AuthRefreshResponseDto tokens = authService.refresh(new AuthRefreshRequestDto(refreshCookie.getValue()));
 		ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN, tokens.getAccessToken())
 			.httpOnly(true)
 			.secure(true)
@@ -114,7 +114,7 @@ public class AuthController {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/me")
 	public ResponseEntity<LoggedInUserDto> loggedInUserInfo() {
-		return ResponseEntity.ok(authManager.getLoggedInUserInfo());
+		return ResponseEntity.ok(authService.getLoggedInUserInfo());
 	}
 
 	@GetMapping("/status")
@@ -122,7 +122,7 @@ public class AuthController {
 		Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
 		if (cookie == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthStatusDto(false));
 
-		AuthStatusDto status = authManager.checkAuthenticationStatus(cookie.getValue());
+		AuthStatusDto status = authService.checkAuthenticationStatus(cookie.getValue());
 		if (!status.isAuthenticated()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(status);
 		return ResponseEntity.ok(status);
 	}

@@ -1,8 +1,8 @@
-package nl.ckarakoc.jellycash.manager;
+package nl.ckarakoc.jellycash.service;
 
 import nl.ckarakoc.jellycash.dto.*;
 
-public interface AuthManager {
+public interface AuthService {
 	AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto);
 
 	AuthLoginResponseDto login(AuthLoginRequestDto requestDto, String accessToken);

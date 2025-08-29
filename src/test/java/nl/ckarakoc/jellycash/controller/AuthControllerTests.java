@@ -5,7 +5,7 @@ import nl.ckarakoc.jellycash.config.AppConstants;
 import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
 import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
-import nl.ckarakoc.jellycash.manager.AuthManager;
+import nl.ckarakoc.jellycash.service.AuthService;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +41,7 @@ public class AuthControllerTests {
 	private ObjectMapper objectMapper;
 
 	@MockitoBean
-	private AuthManager authManager;
+	private AuthService authService;
 
 	@MockitoBean
 	private JwtService jwtService;
@@ -61,7 +61,7 @@ public class AuthControllerTests {
 			.refreshToken("test_refresh_token")
 			.build();
 
-		when(authManager.register(any())).thenReturn(mockTokens);
+		when(authService.register(any())).thenReturn(mockTokens);
 
 		MvcResult mvcResult = mockMvc.perform(post("/auth/register")
 				.with(csrf())
@@ -122,7 +122,7 @@ public class AuthControllerTests {
 			.lastName("Rutte")
 			.build();
 
-		when(authManager.register(any())).thenThrow(new AuthenticationConflictException("Email already exists"));
+		when(authService.register(any())).thenThrow(new AuthenticationConflictException("Email already exists"));
 
 		mockMvc.perform(post("/auth/register")
 				.with(csrf())

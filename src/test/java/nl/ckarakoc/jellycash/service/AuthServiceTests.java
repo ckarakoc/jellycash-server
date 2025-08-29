@@ -1,4 +1,4 @@
-package nl.ckarakoc.jellycash.manager;
+package nl.ckarakoc.jellycash.service;
 
 import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
 import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
@@ -9,8 +9,6 @@ import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
-import nl.ckarakoc.jellycash.service.RoleService;
-import nl.ckarakoc.jellycash.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,10 +24,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class AuthManagerTests {
+public class AuthServiceTests {
 
 	@Autowired
-	private AuthManager authManager;
+	private AuthService authService;
 	//	@MockitoBean
 	//	private ModelMapper modelMapper;
 	//	@MockitoBean
@@ -58,7 +56,7 @@ public class AuthManagerTests {
 
 		when(userService.existsByEmail(dto.getEmail())).thenReturn(true);
 
-		assertThatThrownBy(() -> authManager.register(dto))
+		assertThatThrownBy(() -> authService.register(dto))
 			.isInstanceOf(AuthenticationConflictException.class)
 			.hasMessageContaining("Email already exists");
 	}
@@ -91,7 +89,7 @@ public class AuthManagerTests {
 		when(jwtService.generateRefreshToken(any())).thenReturn(refresh);
 		when(refreshTokenRepository.save(any())).thenReturn(refresh);
 
-		AuthRegisterResponseDto tokens = authManager.register(dto);
+		AuthRegisterResponseDto tokens = authService.register(dto);
 
 		assertThat(tokens.getAccessToken()).isEqualTo("access-token");
 		assertThat(tokens.getRefreshToken()).isEqualTo("refresh-token-123");
