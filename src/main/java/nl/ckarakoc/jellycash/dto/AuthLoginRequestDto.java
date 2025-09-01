@@ -13,11 +13,12 @@ import nl.ckarakoc.jellycash.validator.Password;
 @NoArgsConstructor
 @Builder
 public class AuthLoginRequestDto {
-	@NotBlank
-	@Email
-	private String email;
 
-	@NotBlank
-	@Password
-	private String password;
+  @NotBlank
+  @Email
+  private String email;
+
+  @NotBlank
+  @Password
+  private String password;
 }

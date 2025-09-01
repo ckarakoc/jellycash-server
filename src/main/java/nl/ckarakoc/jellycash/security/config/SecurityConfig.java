@@ -3,6 +3,8 @@ package nl.ckarakoc.jellycash.security.config;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.model.AppRole;
 import org.springframework.context.annotation.Bean;
@@ -26,78 +28,81 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.io.IOException;
-import java.util.List;
-
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	private final JwtAuthenticationFilter jwtAuthFilter;
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http
-			.csrf(csrf -> csrf.disable()) // disable csrf for now
-			.cors(cors -> {
-				cors.configurationSource(config -> {
-					CorsConfiguration configuration = new CorsConfiguration();
-					configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-					configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-					configuration.setAllowedHeaders(List.of("*"));
-					configuration.setAllowCredentials(true);
-					return configuration;
-				});
-			})
-			.authorizeHttpRequests(authorize -> {
-				// Swagger UI paths
-				authorize.requestMatchers("/swagger-ui/**").permitAll()
-					.requestMatchers("/swagger-ui.html").permitAll()
-					.requestMatchers("/v3/api-docs/**").permitAll()
-					.requestMatchers("/swagger-resources/**").permitAll()
-					.requestMatchers("/webjars/**").permitAll()
+  private final JwtAuthenticationFilter jwtAuthFilter;
 
-					.requestMatchers("/actuator/**").permitAll() // todo: Fix this. actuator should be secured
-					.requestMatchers("/auth/**").permitAll()
-					.requestMatchers("/api/**").permitAll()
-					.requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())
-					.anyRequest().authenticated();
-			})
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-			.build();
-	}
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(csrf -> csrf.disable()) // disable csrf for now
+        .cors(cors -> {
+          cors.configurationSource(config -> {
+            CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            configuration.setAllowedHeaders(List.of("*"));
+            configuration.setAllowCredentials(true);
+            return configuration;
+          });
+        })
+        .authorizeHttpRequests(authorize -> {
+          // Swagger UI paths
+          authorize.requestMatchers("/swagger-ui/**").permitAll()
+              .requestMatchers("/swagger-ui.html").permitAll()
+              .requestMatchers("/v3/api-docs/**").permitAll()
+              .requestMatchers("/swagger-resources/**").permitAll()
+              .requestMatchers("/webjars/**").permitAll()
 
-	@Bean
-	public CompromisedPasswordChecker compromisedPasswordChecker() {
-		return new HaveIBeenPwnedRestApiPasswordChecker();
-	}
+              .requestMatchers("/actuator/**")
+              .permitAll() // todo: Fix this. actuator should be secured
+              .requestMatchers("/auth/**").permitAll()
+              .requestMatchers("/api/**").permitAll()
+              .requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())
+              .anyRequest().authenticated();
+        })
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
 
-	static class CompromisedPasswordAuthenticationFailureHandler implements AuthenticationFailureHandler {
-		private final SimpleUrlAuthenticationFailureHandler defaultFailureHandler = new SimpleUrlAuthenticationFailureHandler(
-			"/login?error");
+  @Bean
+  public CompromisedPasswordChecker compromisedPasswordChecker() {
+    return new HaveIBeenPwnedRestApiPasswordChecker();
+  }
 
-		private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+  static class CompromisedPasswordAuthenticationFailureHandler implements
+      AuthenticationFailureHandler {
 
-		@Override
-		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-		                                    AuthenticationException exception) throws IOException, ServletException {
-			if (exception instanceof CompromisedPasswordException) {
-				this.redirectStrategy.sendRedirect(request, response, "/reset-password");
-				return;
-			}
-			this.defaultFailureHandler.onAuthenticationFailure(request, response, exception);
-		}
+    private final SimpleUrlAuthenticationFailureHandler defaultFailureHandler = new SimpleUrlAuthenticationFailureHandler(
+        "/login?error");
 
-	}
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		return config.getAuthenticationManager();
-	}
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+        AuthenticationException exception) throws IOException, ServletException {
+      if (exception instanceof CompromisedPasswordException) {
+        this.redirectStrategy.sendRedirect(request, response, "/reset-password");
+        return;
+      }
+      this.defaultFailureHandler.onAuthenticationFailure(request, response, exception);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-	}
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+  }
 }

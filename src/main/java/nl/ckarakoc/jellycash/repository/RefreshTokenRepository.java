@@ -1,21 +1,21 @@
 package nl.ckarakoc.jellycash.repository;
 
+import java.util.Optional;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-	Optional<RefreshToken> findByUser(User user);
 
-	Optional<RefreshToken> findByToken(String token);
+  Optional<RefreshToken> findByUser(User user);
 
-	void deleteByUser(User user);
+  Optional<RefreshToken> findByToken(String token);
 
-	void deleteByToken(String token);
+  void deleteByUser(User user);
 
-	boolean existsByToken(String token);
+  void deleteByToken(String token);
 
-	boolean existsByTokenAndUser(String token, User user);
+  boolean existsByToken(String token);
+
+  boolean existsByTokenAndUser(String token, User user);
 }

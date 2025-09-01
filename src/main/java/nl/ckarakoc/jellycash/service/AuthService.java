@@ -1,17 +1,27 @@
 package nl.ckarakoc.jellycash.service;
 
-import nl.ckarakoc.jellycash.dto.*;
+import nl.ckarakoc.jellycash.dto.AuthLoginRequestDto;
+import nl.ckarakoc.jellycash.dto.AuthLoginResponseDto;
+import nl.ckarakoc.jellycash.dto.AuthLogoutRequestDto;
+import nl.ckarakoc.jellycash.dto.AuthLogoutResponseDto;
+import nl.ckarakoc.jellycash.dto.AuthRefreshRequestDto;
+import nl.ckarakoc.jellycash.dto.AuthRefreshResponseDto;
+import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
+import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
+import nl.ckarakoc.jellycash.dto.AuthStatusDto;
+import nl.ckarakoc.jellycash.dto.LoggedInUserDto;
 
 public interface AuthService {
-	AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto);
 
-	AuthLoginResponseDto login(AuthLoginRequestDto requestDto, String accessToken);
+  AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto);
 
-	AuthRefreshResponseDto refresh( AuthRefreshRequestDto requestDto);
+  AuthLoginResponseDto login(AuthLoginRequestDto requestDto, String accessToken);
 
-	AuthLogoutResponseDto logout(AuthLogoutRequestDto requestDto);
+  AuthRefreshResponseDto refresh(AuthRefreshRequestDto requestDto);
 
-	LoggedInUserDto getLoggedInUserInfo();
+  AuthLogoutResponseDto logout(AuthLogoutRequestDto requestDto);
 
-	AuthStatusDto checkAuthenticationStatus(String token);
+  LoggedInUserDto getLoggedInUserInfo();
+
+  AuthStatusDto checkAuthenticationStatus(String token);
 }

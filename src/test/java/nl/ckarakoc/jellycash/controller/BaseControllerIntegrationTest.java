@@ -10,4 +10,5 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @Transactional
 public abstract class BaseControllerIntegrationTest {
+
 }

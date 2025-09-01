@@ -1,5 +1,12 @@
 package nl.ckarakoc.jellycash.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Date;
 import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
 import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
@@ -18,86 +25,78 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Date;
+class AuthServiceTests extends BaseServiceTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+  @Mock
+  private JwtService jwtService;
+  @Mock
+  private UserService userService;
+  @Mock
+  private RoleService roleService;
 
-class AuthServiceTests extends BaseServiceTest{
+  @Spy
+  private ModelMapper modelMapper = new ModelMapper();
+  @Mock
+  private PasswordEncoder passwordEncoder;
+  @Mock
+  private AuthenticationManager authenticationManager;
+  @Mock
+  private RefreshTokenRepository refreshTokenRepository;
 
-	@Mock
-	private JwtService jwtService;
-	@Mock
-	private UserService userService;
-	@Mock
-	private RoleService roleService;
+  @InjectMocks
+  private AuthServiceImpl authService;
 
-	@Spy
-	private ModelMapper modelMapper = new ModelMapper();
-	@Mock
-	private PasswordEncoder passwordEncoder;
-	@Mock
-	private AuthenticationManager authenticationManager;
-	@Mock
-	private RefreshTokenRepository refreshTokenRepository;
+  @Test
+  void shouldThrowConflict_whenEmailAlreadyExists() {
+    AuthRegisterRequestDto dto = AuthRegisterRequestDto.builder()
+        .email("mark@rutte.nl")
+        .password("Vergeten@123")
+        .confirmPassword("Vergeten@123")
+        .firstName("Mark")
+        .lastName("Rutte")
+        .build();
 
-	@InjectMocks
-	private AuthServiceImpl authService;
+    when(userService.existsByEmail(dto.getEmail())).thenReturn(true);
 
-	@Test
-	void shouldThrowConflict_whenEmailAlreadyExists() {
-		AuthRegisterRequestDto dto = AuthRegisterRequestDto.builder()
-			.email("mark@rutte.nl")
-			.password("Vergeten@123")
-			.confirmPassword("Vergeten@123")
-			.firstName("Mark")
-			.lastName("Rutte")
-			.build();
+    assertThatThrownBy(() -> authService.register(dto))
+        .isInstanceOf(AuthenticationConflictException.class)
+        .hasMessageContaining("Email already exists");
+  }
 
-		when(userService.existsByEmail(dto.getEmail())).thenReturn(true);
+  @Test
+  void shouldReturnTokens_whenValidRequest_register() {
+    AuthRegisterRequestDto dto = AuthRegisterRequestDto.builder()
+        .email("mark@rutte.nl")
+        .password("Vergeten@123")
+        .confirmPassword("Vergeten@123")
+        .firstName("Mark")
+        .lastName("Rutte")
+        .build();
 
-		assertThatThrownBy(() -> authService.register(dto))
-			.isInstanceOf(AuthenticationConflictException.class)
-			.hasMessageContaining("Email already exists");
-	}
+    User user = new User();
+    user.setEmail(dto.getEmail());
 
-	@Test
-	void shouldReturnTokens_whenValidRequest_register() {
-		AuthRegisterRequestDto dto = AuthRegisterRequestDto.builder()
-			.email("mark@rutte.nl")
-			.password("Vergeten@123")
-			.confirmPassword("Vergeten@123")
-			.firstName("Mark")
-			.lastName("Rutte")
-			.build();
+    Role role = new Role();
+    role.setRole(AppRole.USER);
 
-		User user = new User();
-		user.setEmail(dto.getEmail());
+    RefreshToken refresh = new RefreshToken();
+    refresh.setToken("refresh-token-123");
+    refresh.setExpiryDate(new Date());
 
-		Role role = new Role();
-		role.setRole(AppRole.USER);
+    when(userService.existsByEmail(dto.getEmail())).thenReturn(false);
+    when(roleService.getRole(AppRole.USER)).thenReturn(role);
+    when(userService.save(any(User.class))).thenReturn(user);
+    when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
+    when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refresh);
+    when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refresh);
 
-		RefreshToken refresh = new RefreshToken();
-		refresh.setToken("refresh-token-123");
-		refresh.setExpiryDate(new Date());
+    AuthRegisterResponseDto tokens = authService.register(dto);
 
-		when(userService.existsByEmail(dto.getEmail())).thenReturn(false);
-		when(roleService.getRole(AppRole.USER)).thenReturn(role);
-		when(userService.save(any(User.class))).thenReturn(user);
-		when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
-		when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refresh);
-		when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refresh);
+    assertThat(tokens.getAccessToken()).isEqualTo("access-token");
+    assertThat(tokens.getRefreshToken()).isEqualTo("refresh-token-123");
 
-		AuthRegisterResponseDto tokens = authService.register(dto);
-
-		assertThat(tokens.getAccessToken()).isEqualTo("access-token");
-		assertThat(tokens.getRefreshToken()).isEqualTo("refresh-token-123");
-
-		verify(userService).save(any(User.class));
-		verify(refreshTokenRepository).save(refresh);
-	}
+    verify(userService).save(any(User.class));
+    verify(refreshTokenRepository).save(refresh);
+  }
 }
 

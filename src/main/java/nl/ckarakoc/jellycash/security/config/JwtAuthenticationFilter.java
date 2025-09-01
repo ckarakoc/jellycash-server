@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants;
@@ -24,41 +25,38 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
-import java.io.IOException;
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
-	private final ObjectMapper objectMapper;
+  private final JwtService jwtService;
+  private final UserDetailsService userDetailsService;
+  private final ObjectMapper objectMapper;
 
-	@Override
-	protected void doFilterInternal(@NonNull HttpServletRequest request,
-	                                @NonNull HttpServletResponse response,
-	                                @NonNull FilterChain filterChain) throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(@NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-		String path = request.getRequestURI();
-		for (String noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
-			if (path.startsWith(noAuthRequiredEndpoint)) {
-				filterChain.doFilter(request, response);
-				return;
-			}
-		}
+    String path = request.getRequestURI();
+    for (String noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
+      if (path.startsWith(noAuthRequiredEndpoint)) {
+        filterChain.doFilter(request, response);
+        return;
+      }
+    }
 
-		Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
-		final String accessToken;
+    Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
+    final String accessToken;
 
-
-		if (cookie != null) {
-			// Cookie based authentication
-			accessToken = cookie.getValue();
-		} else {
-			filterChain.doFilter(request, response);
-			return;
-		}
+    if (cookie != null) {
+      // Cookie based authentication
+      accessToken = cookie.getValue();
+    } else {
+      filterChain.doFilter(request, response);
+      return;
+    }
 		/*else {
 			// Header based authentication
 			final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
@@ -69,27 +67,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
 		}*/
 
-		try {
-			final String userEmail = jwtService.extractUsername(accessToken);
-			if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-				UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-				if (jwtService.isTokenValid(accessToken, userDetails)) {
-					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authToken);
-				}
-			}
-		} catch (ApiException e) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Bad Request", e.getMessage());
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setContentType("application/json");
-			objectMapper.writeValue(response.getWriter(), apiError);
-		} catch (UsernameNotFoundException e) {
-			ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", "User not found");
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json");
-			objectMapper.writeValue(response.getWriter(), apiError);
-		}
-		filterChain.doFilter(request, response);
-	}
+    try {
+      final String userEmail = jwtService.extractUsername(accessToken);
+      if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+        if (jwtService.isTokenValid(accessToken, userDetails)) {
+          UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+              userDetails, null, userDetails.getAuthorities());
+          authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
+      }
+    } catch (ApiException e) {
+      ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Bad Request",
+          e.getMessage());
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      response.setContentType("application/json");
+      objectMapper.writeValue(response.getWriter(), apiError);
+    } catch (UsernameNotFoundException e) {
+      ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized",
+          "User not found");
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType("application/json");
+      objectMapper.writeValue(response.getWriter(), apiError);
+    }
+    filterChain.doFilter(request, response);
+  }
 }

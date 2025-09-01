@@ -14,9 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreatePotRequestDto {
-	@NotBlank
-	private String name;
-	@NotNull
-	@Positive
-	private Long maxBalance;
+
+  @NotBlank
+  private String name;
+  @NotNull
+  @Positive
+  private Long maxBalance;
 }

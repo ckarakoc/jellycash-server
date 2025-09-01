@@ -8,9 +8,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class JellycashApplicationTests {
 
-	@Test
-	void contextLoads() {
-		System.out.println("Cultivate!");
-	}
+  @Test
+  void contextLoads() {
+    System.out.println("Cultivate!");
+  }
 
 }

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminController {
 
-	@GetMapping("/health")
-	public String health() {
-		return "OK";
-	}
+  @GetMapping("/health")
+  public String health() {
+    return "OK";
+  }
 }

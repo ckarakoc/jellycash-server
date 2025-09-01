@@ -1,8 +1,8 @@
 package nl.ckarakoc.jellycash.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import nl.ckarakoc.jellycash.service.NotificationService;
 import nl.ckarakoc.jellycash.service.BudgetService;
+import nl.ckarakoc.jellycash.service.NotificationService;
 import nl.ckarakoc.jellycash.service.PotService;
 import nl.ckarakoc.jellycash.service.RecurringBillService;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class NotificationServiceImpl implements NotificationService {
-	private final BudgetService budgetService;
-	private final RecurringBillService recurringBillService;
-	private final PotService potService;
+
+  private final BudgetService budgetService;
+  private final RecurringBillService recurringBillService;
+  private final PotService potService;
 }

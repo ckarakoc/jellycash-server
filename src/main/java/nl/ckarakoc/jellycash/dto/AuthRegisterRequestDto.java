@@ -17,29 +17,30 @@ import nl.ckarakoc.jellycash.validator.PasswordMatches;
 @Builder
 @PasswordMatches
 public class AuthRegisterRequestDto {
-	@NotBlank
-	@Email
-	private String email;
 
-	@NotBlank
-	@Password
-	private String password;
+  @NotBlank
+  @Email
+  private String email;
 
-	@NotBlank
-	@Password
-	private String confirmPassword;
+  @NotBlank
+  @Password
+  private String password;
 
-	@Size(max = 255)
-	private String firstName;
+  @NotBlank
+  @Password
+  private String confirmPassword;
 
-	@Size(max = 255)
-	private String lastName;
+  @Size(max = 255)
+  private String firstName;
 
-	@Size(max = 255)
-	private String avatar;
+  @Size(max = 255)
+  private String lastName;
 
-	@Size(min = 3, max = 3)
-	@Pattern(regexp = "[A-Z]{3}")
-	@Builder.Default
-	private String currency = "EUR";
+  @Size(max = 255)
+  private String avatar;
+
+  @Size(min = 3, max = 3)
+  @Pattern(regexp = "[A-Z]{3}")
+  @Builder.Default
+  private String currency = "EUR";
 }

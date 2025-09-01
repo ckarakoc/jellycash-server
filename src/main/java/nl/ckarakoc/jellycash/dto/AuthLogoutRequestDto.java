@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AuthLogoutRequestDto {
-	private String refreshToken;
+
+  private String refreshToken;
 }

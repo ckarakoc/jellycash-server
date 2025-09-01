@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AuthStatusDto {
-	private boolean authenticated;
+
+  private boolean authenticated;
 }

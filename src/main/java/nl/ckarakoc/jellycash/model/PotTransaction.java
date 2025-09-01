@@ -1,46 +1,59 @@
 package nl.ckarakoc.jellycash.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Entity
 @Table(name = "pot_transactions")
 public class PotTransaction {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "pot_transaction_id", nullable = false)
-	private Long potTransactionId;
 
-	private Long amount;
-	private Boolean isCredit;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "pot_transaction_id", nullable = false)
+  private Long potTransactionId;
 
-	@CreationTimestamp
-	@Column(name = "created_at", updatable = false, nullable = false)
-	private LocalDateTime createdAt;
+  private Long amount;
+  private Boolean isCredit;
 
-	@ManyToOne
-	@JoinColumn(name = "pot_id")
-	private Pot pot;
+  @CreationTimestamp
+  @Column(name = "created_at", updatable = false, nullable = false)
+  private LocalDateTime createdAt;
 
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof PotTransaction that)) return false;
-		return Objects.equals(potTransactionId, that.potTransactionId);
-	}
+  @ManyToOne
+  @JoinColumn(name = "pot_id")
+  private Pot pot;
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(potTransactionId);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof PotTransaction that)) {
+      return false;
+    }
+    return Objects.equals(potTransactionId, that.potTransactionId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(potTransactionId);
+  }
 }

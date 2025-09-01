@@ -1,15 +1,35 @@
 package nl.ckarakoc.jellycash.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 @Getter
 @Setter
@@ -20,127 +40,130 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id", nullable = false)
-	private Long userId;
-	@Column(nullable = false, unique = true)
-	private String email;
-	@Column(nullable = false)
-	private String password;
-	private String firstName;
-	private String lastName;
-	@Builder.Default
-	private String avatar = ""; // todo: location to default avatar image
-	@Column(length = 3)
-	@Builder.Default
-	private String currency = "EUR";
-	@Builder.Default
-	private Long balance = 0L;
-	@Builder.Default
-	private Long income = 0L;
-	@Builder.Default
-	private Long expenses = 0L;
 
-	//region security
-	@Column(nullable = false)
-	@Builder.Default
-	private boolean enabled = true;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id", nullable = false)
+  private Long userId;
+  @Column(nullable = false, unique = true)
+  private String email;
+  @Column(nullable = false)
+  private String password;
+  private String firstName;
+  private String lastName;
+  @Builder.Default
+  private String avatar = ""; // TODO: location to default avatar image
+  @Column(length = 3)
+  @Builder.Default
+  private String currency = "EUR";
+  @Builder.Default
+  private Long balance = 0L;
+  @Builder.Default
+  private Long income = 0L;
+  @Builder.Default
+  private Long expenses = 0L;
 
-	@Column(nullable = false)
-	@Builder.Default
-	private boolean accountNonExpired = true;
+  // region security
+  @Column(nullable = false)
+  @Builder.Default
+  private boolean enabled = true;
 
-	@Column(nullable = false)
-	@Builder.Default
-	private boolean accountNonLocked = true;
+  @Column(nullable = false)
+  @Builder.Default
+  private boolean accountNonExpired = true;
 
-	@Column(nullable = false)
-	@Builder.Default
-	private boolean credentialsNonExpired = true;
+  @Column(nullable = false)
+  @Builder.Default
+  private boolean accountNonLocked = true;
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private RefreshToken refreshToken;
+  @Column(nullable = false)
+  @Builder.Default
+  private boolean credentialsNonExpired = true;
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return getRoles().stream()
-			.map(a -> new SimpleGrantedAuthority("ROLE_" + a.getRole().name()))
-			.toList();
-	}
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private RefreshToken refreshToken;
 
-	@Override
-	public String getUsername() {
-		return email;
-	}
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return getRoles().stream()
+        .map(a -> new SimpleGrantedAuthority("ROLE_" + a.getRole().name()))
+        .toList();
+  }
 
-	@Override
-	public String getPassword() {
-		return password;
-	}
+  @Override
+  public String getUsername() {
+    return email;
+  }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return this.accountNonExpired;
-	}
+  @Override
+  public String getPassword() {
+    return password;
+  }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return this.accountNonLocked;
-	}
+  @Override
+  public boolean isAccountNonExpired() {
+    return this.accountNonExpired;
+  }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return this.credentialsNonExpired;
-	}
+  @Override
+  public boolean isAccountNonLocked() {
+    return this.accountNonLocked;
+  }
 
-	@Override
-	public boolean isEnabled() {
-		return this.enabled;
-	}
-	//endregion
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return this.credentialsNonExpired;
+  }
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(
-		name = "user_roles",
-		joinColumns = @JoinColumn(name = "user_id"),
-		inverseJoinColumns = @JoinColumn(name = "role_id")
-	)
-	@ToString.Exclude
-	@Builder.Default
-	private Set<Role> roles = new HashSet<>();
+  @Override
+  public boolean isEnabled() {
+    return this.enabled;
+  }
+  // endregion
 
-	@CreationTimestamp
-	@Column(name = "created_at", updatable = false, nullable = false)
-	private LocalDateTime createdAt;
-	@UpdateTimestamp
-	@Column(name = "updated_at")
-	private LocalDateTime updatedAt;
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "user_roles",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id")
+  )
+  @ToString.Exclude
+  @Builder.Default
+  private Set<Role> roles = new HashSet<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@ToString.Exclude
-	private List<Pot> pots;
+  @CreationTimestamp
+  @Column(name = "created_at", updatable = false, nullable = false)
+  private LocalDateTime createdAt;
+  @UpdateTimestamp
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@ToString.Exclude
-	private List<Budget> budgets;
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
+  private List<Pot> pots;
 
-	@OneToMany(mappedBy = "sender", cascade = { CascadeType.PERSIST, CascadeType.MERGE})
-	@ToString.Exclude
-	private List<Transaction> sentTransactions;
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
+  private List<Budget> budgets;
 
-	@OneToMany(mappedBy = "recipient", cascade = { CascadeType.PERSIST, CascadeType.MERGE})
-	@ToString.Exclude
-	private List<Transaction> receivedTransactions;
+  @OneToMany(mappedBy = "sender", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @ToString.Exclude
+  private List<Transaction> sentTransactions;
 
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof User user)) return false;
-		return Objects.equals(userId, user.userId);
-	}
+  @OneToMany(mappedBy = "recipient", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @ToString.Exclude
+  private List<Transaction> receivedTransactions;
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(userId);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof User user)) {
+      return false;
+    }
+    return Objects.equals(userId, user.userId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(userId);
+  }
 }

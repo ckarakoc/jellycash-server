@@ -18,25 +18,26 @@ import nl.ckarakoc.jellycash.validator.Password;
 @NoArgsConstructor
 @Builder
 public class CreateUserRequestDto {
-	@Email
-	@NotBlank
-	private String email;
 
-	@NotBlank
-	@Password
-	private String password;
+  @Email
+  @NotBlank
+  private String email;
 
-	@Size(max = 255)
-	private String firstName;
+  @NotBlank
+  @Password
+  private String password;
 
-	@Size(max = 255)
-	private String lastName;
+  @Size(max = 255)
+  private String firstName;
 
-	@Size(max = 255)
-	private String avatar;
+  @Size(max = 255)
+  private String lastName;
 
-	@Size(min = 3, max = 3)
-	@Pattern(regexp = "[A-Z]{3}")
-	@Builder.Default
-	private String currency = "EUR";
+  @Size(max = 255)
+  private String avatar;
+
+  @Size(min = 3, max = 3)
+  @Pattern(regexp = "[A-Z]{3}")
+  @Builder.Default
+  private String currency = "EUR";
 }

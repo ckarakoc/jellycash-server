@@ -7,13 +7,14 @@ import nl.ckarakoc.jellycash.dto.UpdateUserResponseDto;
 import nl.ckarakoc.jellycash.model.User;
 
 public interface UserService {
-	CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestDto);
 
-	UpdateUserResponseDto updateUser(UpdateUserRequestDto updateUserRequestDto);
+  CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestDto);
 
-	boolean existsByEmail(String email);
+  UpdateUserResponseDto updateUser(UpdateUserRequestDto updateUserRequestDto);
 
-	User findByEmail(String email);
+  boolean existsByEmail(String email);
 
-	User save(User user);
+  User findByEmail(String email);
+
+  User save(User user);
 }
