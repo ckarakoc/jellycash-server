@@ -57,16 +57,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-		/*else {
-			// Header based authentication
-			final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
-			if (authorizationHeader == null || !authorizationHeader.startsWith(AppConstants.JwtTokenPrefix.BEARER)) {
-				filterChain.doFilter(request, response);
-				return;
-			}
-			accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
-		}*/
-
+    /* else{
+      // Header based authentication
+      final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
+      if (authorizationHeader == null || !authorizationHeader.startsWith(AppConstants.JwtTokenPrefix.BEARER)) {
+        filterChain.doFilter(request, response);
+        return;
+      }
+      accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
+    }
+    */
     try {
       final String userEmail = jwtService.extractUsername(accessToken);
       if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import nl.ckarakoc.jellycash.validator.Password;
 
 /**
- * DTO for {@link nl.ckarakoc.jellycash.model.User}
+ * DTO for {@link nl.ckarakoc.jellycash.model.User}.
  */
 @Data
 @AllArgsConstructor

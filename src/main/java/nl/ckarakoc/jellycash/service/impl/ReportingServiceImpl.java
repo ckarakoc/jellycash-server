@@ -7,7 +7,7 @@ import nl.ckarakoc.jellycash.service.ReportingService;
 import nl.ckarakoc.jellycash.service.TransactionService;
 import org.springframework.stereotype.Service;
 
-// todo: Combine data from multiple sources for reports
+// TODO: Combine data from multiple sources for reports
 // - Use TransactionService for spending data
 // - Use CategoryService for grouping
 // - Use BudgetService for comparisons

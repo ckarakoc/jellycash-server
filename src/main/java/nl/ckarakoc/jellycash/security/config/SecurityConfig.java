@@ -58,7 +58,7 @@ public class SecurityConfig {
               .requestMatchers("/webjars/**").permitAll()
 
               .requestMatchers("/actuator/**")
-              .permitAll() // todo: Fix this. actuator should be secured
+              .permitAll() // TODO: Fix this. actuator should be secured
               .requestMatchers("/auth/**").permitAll()
               .requestMatchers("/api/**").permitAll()
               .requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())

@@ -38,7 +38,7 @@ public class RefreshToken {
   @Column(nullable = false)
   private Date expiryDate;
 
-  //private boolean revoked = false;
+  // private boolean revoked = false;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")

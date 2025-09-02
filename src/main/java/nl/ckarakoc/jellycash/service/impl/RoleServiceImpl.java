@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class RoleServiceImpl implements RoleService {
 
   private final RoleRepository roleRepository;
-  //todo: private final Map<AppRole, Role> roleCache = new HashMap<>();
+  // TODO: private final Map<AppRole, Role> roleCache = new HashMap<>();
 
 
   public RoleServiceImpl(RoleRepository roleRepository) {

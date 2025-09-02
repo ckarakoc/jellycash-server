@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for {@link nl.ckarakoc.jellycash.model.User}
+ * DTO for {@link nl.ckarakoc.jellycash.model.User}.
  */
 @Data
 @AllArgsConstructor

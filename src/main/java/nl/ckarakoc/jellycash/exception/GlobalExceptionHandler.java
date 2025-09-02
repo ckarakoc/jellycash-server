@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
     body.put("timestamp", LocalDateTime.now());
     body.put("error", "Internal Server Error");
     body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-    if (env.acceptsProfiles(Profiles.of("dev")) ||
-        env.acceptsProfiles(Profiles.of("test"))) {
+    if (env.acceptsProfiles(Profiles.of("dev"))
+        || env.acceptsProfiles(Profiles.of("test"))) {
       body.put("message", ex.getMessage());
     }
     return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);

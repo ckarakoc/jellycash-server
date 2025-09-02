@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for {@link nl.ckarakoc.jellycash.model.Pot}
+ * DTO for {@link nl.ckarakoc.jellycash.model.Pot}.
  */
 @Data
 @AllArgsConstructor

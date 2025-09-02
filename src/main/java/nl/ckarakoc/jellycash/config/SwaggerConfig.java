@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
   @Bean
-  public OpenAPI openAPI() {
+  public OpenAPI openApi() {
     SecurityScheme bearerScheme = new SecurityScheme()
         .type(SecurityScheme.Type.HTTP)
         .scheme("bearer")

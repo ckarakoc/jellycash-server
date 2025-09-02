@@ -8,7 +8,7 @@ import nl.ckarakoc.jellycash.service.RecurringBillService;
 import nl.ckarakoc.jellycash.service.TransactionService;
 import org.springframework.stereotype.Service;
 
-// todo: Coordinates multiple services to build dashboard data
+// TODO: Coordinates multiple services to build dashboard data
 // - Use TransactionService to get recent transactions
 // - Use BudgetService to check spending vs budgets
 // - Use PotService to get savings progress

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 @Profile("!test")
-public class DBInitializer implements CommandLineRunner {
+public class DataBaseInitializer implements CommandLineRunner {
 
   private final RefreshTokenRepository refreshTokenRepository;
   private final RoleRepository roleRepository;
@@ -57,7 +57,7 @@ public class DBInitializer implements CommandLineRunner {
     // Date expiryDate = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7);
     // RefreshToken refreshToken = jwtService.generateRefreshToken(superUser, expiryDate);
 
-    String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHJ1dHRlLm5sIiwiaWF0IjoxNzU2MTE0ODM0LCJleHAiOjE3NTY3MTk2MzR9.yhLSjGbQzfg03jPksnrlHkjYDi4SAcIX3W2-eIMEkAU";
+    String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHJ1dHRlLm5sIiwiaWF0IjoxNzU2ODAyNzAwLCJleHAiOjE3NTc0MDc0OTl9.UgBYEeBEitATkLBJZzWnvoUBTAJbsMvJHoOvoRafuaY";
     Date expiry = jwtService.extractClaim(token, Claims::getExpiration);
     RefreshToken refreshToken = new RefreshToken();
     refreshToken.setUser(superUser);

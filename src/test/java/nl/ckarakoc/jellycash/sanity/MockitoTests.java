@@ -1,4 +1,4 @@
-package nl.ckarakoc.jellycash.stupid;
+package nl.ckarakoc.jellycash.sanity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;

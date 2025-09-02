@@ -3,4 +3,4 @@
  *
  * @author Celal Karakoç
  */
-package nl.ckarakoc.jellycash.stupid;
+package nl.ckarakoc.jellycash.sanity;
