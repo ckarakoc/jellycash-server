@@ -57,10 +57,9 @@ public class SecurityConfig {
               .requestMatchers("/swagger-resources/**").permitAll()
               .requestMatchers("/webjars/**").permitAll()
 
-              .requestMatchers("/actuator/**")
-              .permitAll() // TODO: Fix this. actuator should be secured
+              .requestMatchers("/actuator/**").permitAll() // TODO: Fix this. actuator should be secured
               .requestMatchers("/auth/**").permitAll()
-              .requestMatchers("/api/**").permitAll()
+              .requestMatchers("/api/v1/**").permitAll()
               .requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())
               .anyRequest().authenticated();
         })

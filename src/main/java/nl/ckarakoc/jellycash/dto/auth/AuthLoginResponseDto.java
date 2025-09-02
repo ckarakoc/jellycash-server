@@ -1,4 +1,4 @@
-package nl.ckarakoc.jellycash.dto;
+package nl.ckarakoc.jellycash.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthLogoutResponseDto {
+public class AuthLoginResponseDto {
 
-  private boolean success;
+  private String accessToken;
+  private String refreshToken;
 }

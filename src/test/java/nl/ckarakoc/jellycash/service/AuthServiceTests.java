@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
-import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
-import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.model.RefreshToken;

@@ -1,4 +1,4 @@
-package nl.ckarakoc.jellycash.dto;
+package nl.ckarakoc.jellycash.dto.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

@@ -45,14 +45,10 @@ public class UserControllerTests extends BaseControllerTest {
   static Stream<Arguments> provideInvalidUserArguments() {
     String SUPER_LONG_F = "F".repeat(300); // realistic max length
     return Stream.of(
-        Arguments.of(SUPER_LONG_F, "Vergeten@123", "Mark", "Rutte", "email"),
-        // email: max-length
-        Arguments.of("mark@rutte.nl", SUPER_LONG_F, "Mark", "Rutte", "password"),
-        // password: max-length
-        Arguments.of("mark@rutte.nl", "Vergeten@123", SUPER_LONG_F, "Rutte", "firstName"),
-        // firstName: max-length
-        Arguments.of("mark@rutte.nl", "Vergeten@123", "Mark", SUPER_LONG_F, "lastName")
-        // lastName: max-length
+        Arguments.of(SUPER_LONG_F, "Vergeten@123", "Mark", "Rutte", "email"),               // email: max-length
+        Arguments.of("mark@rutte.nl", SUPER_LONG_F, "Mark", "Rutte", "password"),           // password: max-length
+        Arguments.of("mark@rutte.nl", "Vergeten@123", SUPER_LONG_F, "Rutte", "firstName"),  // firstName: max-length
+        Arguments.of("mark@rutte.nl", "Vergeten@123", "Mark", SUPER_LONG_F, "lastName")     // lastName: max-length
     );
   }
 
@@ -94,8 +90,7 @@ public class UserControllerTests extends BaseControllerTest {
   @ParameterizedTest
   @CsvSource(value = {
       "mark@rutte.nl | vergeten@123  | Mark  | Rutte | password",    // password: no capital letters
-      "mark@rutte.nl | Vergeten123   | Mark  | Rutte | password",
-      // password: no special characters
+      "mark@rutte.nl | Vergeten123   | Mark  | Rutte | password",    // password: no special characters
       "mark@rutte.nl | Vergeten@     | Mark  | Rutte | password",    // password: no numbers
       "mark@rutte.nl | Verg          | Mark  | Rutte | password",    // password: too short
       "mark@rutte.nl | ''            | Mark  | Rutte | password",    // password: empty

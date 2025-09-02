@@ -13,8 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import nl.ckarakoc.jellycash.config.AppConstants;
-import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
-import nl.ckarakoc.jellycash.dto.AuthRegisterResponseDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.AuthService;
@@ -140,26 +140,16 @@ public class AuthControllerTests extends BaseControllerTest {
   }
 
   @CsvSource(value = {
-      // password: has not been repeated properly
-      "mark@rutte.nl | Vergeten@123  | Vergeten@1234 | Mark  | Rutte | password",
-      // password: no capital letters
-      "mark@rutte.nl | vergeten@123  | vergeten@123  | Mark  | Rutte | password",
-      // password: no special characters
-      "mark@rutte.nl | Vergeten123   | Vergeten123   | Mark  | Rutte | password",
-      // password: no numbers
-      "mark@rutte.nl | Vergeten@     | Vergeten@     | Mark  | Rutte | password",
-      // password: too short
-      "mark@rutte.nl | Verg          | Verg          | Mark  | Rutte | password",
-      // password: empty
-      "mark@rutte.nl | ''            | ''            | Mark  | Rutte | password",
-      // password: null
-      "mark@rutte.nl | NULL          | NULL          | Mark  | Rutte | password",
-      // email: wrong email
-      "mark@.nl      | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",
-      // email: empty
-      "''            | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",
-      // email: null
-      "NULL          | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",
+      "mark@rutte.nl | Vergeten@123  | Vergeten@1234 | Mark  | Rutte | password",     // password: has not been repeated properly
+      "mark@rutte.nl | vergeten@123  | vergeten@123  | Mark  | Rutte | password",     // password: no capital letters
+      "mark@rutte.nl | Vergeten123   | Vergeten123   | Mark  | Rutte | password",     // password: no special characters
+      "mark@rutte.nl | Vergeten@     | Vergeten@     | Mark  | Rutte | password",     // password: no numbers
+      "mark@rutte.nl | Verg          | Verg          | Mark  | Rutte | password",     // password: too short
+      "mark@rutte.nl | ''            | ''            | Mark  | Rutte | password",     // password: empty
+      "mark@rutte.nl | NULL          | NULL          | Mark  | Rutte | password",     // password: null
+      "mark@.nl      | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",        // email: wrong email
+      "''            | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",        // email: empty
+      "NULL          | Vergeten@123  | Vergeten@123  | Mark  | Rutte | email",        // email: null
   }, delimiter = '|', nullValues = {"NULL"})
   @ParameterizedTest
   public void shouldReturn400BadRequest_whenInvalidRequestGiven_register(

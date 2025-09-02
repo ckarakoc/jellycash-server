@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import nl.ckarakoc.jellycash.config.AppConstants.ApiPaths;
 import nl.ckarakoc.jellycash.dto.CreateUserRequestDto;
 import nl.ckarakoc.jellycash.dto.CreateUserResponseDto;
 import nl.ckarakoc.jellycash.dto.UpdateUserRequestDto;
@@ -20,11 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 // TODO: test it out
+// TODO: Proper Swagger documentation
 
 @RestController
-@RequestMapping("users")
+@RequestMapping(ApiPaths.Users)
 @Tag(name = "User Controller", description = "Operations related to users")
-public class UserController extends BaseApiController {
+public class UserController {
 
   private final UserService userService;
 

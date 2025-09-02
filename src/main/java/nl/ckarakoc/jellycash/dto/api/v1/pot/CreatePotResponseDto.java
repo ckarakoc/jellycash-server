@@ -1,4 +1,4 @@
-package nl.ckarakoc.jellycash.dto;
+package nl.ckarakoc.jellycash.dto.api.v1.pot;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthStatusDto {
+public class CreatePotResponseDto {
 
-  private boolean authenticated;
+  private Long potId;
 }

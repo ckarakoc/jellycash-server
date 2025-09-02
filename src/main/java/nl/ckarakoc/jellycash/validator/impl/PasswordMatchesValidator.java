@@ -2,7 +2,7 @@ package nl.ckarakoc.jellycash.validator.impl;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import nl.ckarakoc.jellycash.dto.AuthRegisterRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
 import nl.ckarakoc.jellycash.validator.PasswordMatches;
 
 public class PasswordMatchesValidator implements
