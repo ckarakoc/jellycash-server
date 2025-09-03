@@ -2,27 +2,25 @@ package nl.ckarakoc.jellycash.service.impl;
 
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import nl.ckarakoc.jellycash.dto.auth.AuthLoginRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthLoginResponseDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthLogoutRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthLogoutResponseDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRefreshRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRefreshResponseDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRegisterResponseDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthStatusDto;
 import nl.ckarakoc.jellycash.dto.LoggedInUserDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthLoginRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthMessageResponseDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRefreshRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthStatusDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthTokenResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.exception.AuthenticationException;
+import nl.ckarakoc.jellycash.exception.AuthenticationForbiddenException;
 import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
+import nl.ckarakoc.jellycash.repository.RoleRepository;
+import nl.ckarakoc.jellycash.repository.UserRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.AuthService;
-import nl.ckarakoc.jellycash.service.RoleService;
-import nl.ckarakoc.jellycash.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,39 +38,40 @@ public class AuthServiceImpl implements AuthService {
   private final ModelMapper modelMapper;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
-  private final UserService userService;
-  private final RoleService roleService;
   private final AuthenticationManager authenticationManager;
   private final RefreshTokenRepository refreshTokenRepository;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
 
   @Transactional
   @Override
-  public AuthRegisterResponseDto register(AuthRegisterRequestDto requestDto) {
-    if (userService.existsByEmail(requestDto.getEmail())) {
+  public AuthTokenResponseDto register(AuthRegisterRequestDto requestDto) {
+    if (userRepository.existsByEmail(requestDto.getEmail())) {
       throw new AuthenticationConflictException("Email already exists");
     }
 
     User user = modelMapper.map(requestDto, User.class);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-    Role userRole = roleService.getRole(AppRole.USER);
+    Role userRole = roleRepository.findByRole(AppRole.USER)
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+
     user.setRoles(Set.of(userRole));
-    User created = userService.save(user);
+    userRepository.save(user);
 
     String accessToken = jwtService.generateToken(user);
     RefreshToken refreshToken = jwtService.generateRefreshToken(user);
     refreshTokenRepository.save(refreshToken);
 
-    AuthRegisterResponseDto response = modelMapper.map(created, AuthRegisterResponseDto.class);
-    response.setAccessToken(accessToken);
-    response.setRefreshToken(refreshToken.getToken());
-    return response;
+    return AuthTokenResponseDto.builder()
+        .accessToken(accessToken)
+        .refreshToken(refreshToken.getToken())
+        .build();
   }
 
   @Override
-  public AuthLoginResponseDto login(AuthLoginRequestDto requestDto, String accessToken) {
-    Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword()));
+  public AuthTokenResponseDto login(AuthLoginRequestDto requestDto) {
+    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword()));
     User user = (User) authentication.getPrincipal();
 
     if (!user.isEnabled()) {
@@ -88,65 +87,64 @@ public class AuthServiceImpl implements AuthService {
       throw new AuthenticationException("User credentials have expired");
     }
 
-    if (accessToken == null) { // no cookies
-      accessToken = jwtService.generateToken(user);
-    }
-
-    RefreshToken updated = refreshTokenRepository.findByUser(user)
-        .orElse(new RefreshToken());
+    String accessToken = jwtService.generateToken(user);
     RefreshToken newToken = jwtService.generateRefreshToken(user);
 
-    updated.setToken(newToken.getToken());
-    updated.setUser(user);
-    updated.setExpiryDate(newToken.getExpiryDate());
-    refreshTokenRepository.save(updated);
+    RefreshToken fromDb = refreshTokenRepository.findByUser(user)
+        .orElse(new RefreshToken());
 
-    return new AuthLoginResponseDto(accessToken, updated.getToken());
+    fromDb.setToken(newToken.getToken());
+    fromDb.setUser(user);
+    fromDb.setExpiryDate(newToken.getExpiryDate());
+    refreshTokenRepository.save(fromDb);
+
+    return new AuthTokenResponseDto(accessToken, fromDb.getToken());
   }
 
   @Override
-  public AuthRefreshResponseDto refresh(AuthRefreshRequestDto requestDto) {
+  public AuthTokenResponseDto refresh(AuthRefreshRequestDto requestDto) {
     String refreshToken = requestDto.getRefreshToken();
 
     if (refreshToken == null) {
       throw new AuthenticationException("Refresh token is null");
     }
+
     if (!jwtService.isTokenValid(refreshToken)) {
       throw new AuthenticationException("Refresh token is invalid");
     }
 
     String email = jwtService.extractUsername(refreshToken);
-    User user = userService.findByEmail(email);
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new AuthenticationException("User not found"));
 
     if (!refreshTokenRepository.existsByTokenAndUser(refreshToken, user)) {
       throw new AuthenticationException("Refresh token expired");
     }
 
-    return new AuthRefreshResponseDto(jwtService.generateToken(user), refreshToken);
+    return new AuthTokenResponseDto(jwtService.generateToken(user), refreshToken);
   }
 
   @Override
-  public AuthLogoutResponseDto logout(AuthLogoutRequestDto requestDto) {
-    String refreshToken = requestDto.getRefreshToken();
-    if (refreshToken == null) {
-      throw new AuthenticationException("Refresh token is required for logout");
+  public AuthMessageResponseDto logout(User user) {
+    if (user == null) {
+      return new AuthMessageResponseDto(false, "User is not logged in");
     }
-    refreshTokenRepository.deleteByToken(refreshToken);
+    refreshTokenRepository.deleteByUser(user);
     SecurityContextHolder.clearContext();
-
-    return new AuthLogoutResponseDto(true);
+    return new AuthMessageResponseDto(true, "Logout successful");
   }
 
   @Override
   public LoggedInUserDto getLoggedInUserInfo() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-      throw new AuthenticationException("No user authenticated");
+      throw new AuthenticationForbiddenException("No user authenticated");
     }
 
     String email = authentication.getName();
 
-    User user = userService.findByEmail(email);
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new AuthenticationException("User not found"));
     return modelMapper.map(user, LoggedInUserDto.class);
   }
 

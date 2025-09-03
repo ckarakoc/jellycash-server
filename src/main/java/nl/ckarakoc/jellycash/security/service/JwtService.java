@@ -114,6 +114,8 @@ public class JwtService {
         .builder()
         .claims(extraClaims)
         .subject(userDetails.getUsername())
+        // .issuer("https://jellycash.ckarakoc.nl")
+        // .audience().add("jellycash-api").and()
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(expiration)
         .signWith(getSignInKey(), Jwts.SIG.HS256)

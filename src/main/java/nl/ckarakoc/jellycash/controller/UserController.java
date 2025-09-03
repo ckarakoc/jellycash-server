@@ -49,18 +49,12 @@ public class UserController {
   }
 
   @PostMapping
-  @Operation(summary = "Create a new user", description = "Creates a new user with the provided details")
-  public String createUser(@RequestParam String name) {
-    return "User " + name + " created!";
-  }
-
-  @PostMapping("/users")
   public ResponseEntity<CreateUserResponseDto> createUser(
       @RequestBody @Valid CreateUserRequestDto createUserRequestDto) {
     return new ResponseEntity<>(userService.createUser(createUserRequestDto), HttpStatus.CREATED);
   }
 
-  @PutMapping("/users")
+  @PutMapping
   public ResponseEntity<UpdateUserResponseDto> updateUser(
       @RequestBody @Valid UpdateUserRequestDto updateUserRequestDto) {
     return new ResponseEntity<>(userService.updateUser(updateUserRequestDto), HttpStatus.OK);

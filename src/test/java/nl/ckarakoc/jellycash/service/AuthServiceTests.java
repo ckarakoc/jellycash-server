@@ -7,14 +7,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.Optional;
 import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRegisterResponseDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthTokenResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
+import nl.ckarakoc.jellycash.repository.RoleRepository;
+import nl.ckarakoc.jellycash.repository.UserRepository;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -30,9 +33,10 @@ class AuthServiceTests extends BaseServiceTest {
   @Mock
   private JwtService jwtService;
   @Mock
-  private UserService userService;
+  private UserRepository userRepository;
   @Mock
-  private RoleService roleService;
+  private RoleRepository roleRepository;
+
 
   @Spy
   private ModelMapper modelMapper = new ModelMapper();
@@ -56,7 +60,7 @@ class AuthServiceTests extends BaseServiceTest {
         .lastName("Rutte")
         .build();
 
-    when(userService.existsByEmail(dto.getEmail())).thenReturn(true);
+    when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
     assertThatThrownBy(() -> authService.register(dto))
         .isInstanceOf(AuthenticationConflictException.class)
@@ -83,19 +87,19 @@ class AuthServiceTests extends BaseServiceTest {
     refresh.setToken("refresh-token-123");
     refresh.setExpiryDate(new Date());
 
-    when(userService.existsByEmail(dto.getEmail())).thenReturn(false);
-    when(roleService.getRole(AppRole.USER)).thenReturn(role);
-    when(userService.save(any(User.class))).thenReturn(user);
+    when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+    when(roleRepository.findByRole(AppRole.USER)).thenReturn(Optional.of(role));
+    when(userRepository.save(any(User.class))).thenReturn(user);
     when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
     when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refresh);
     when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refresh);
 
-    AuthRegisterResponseDto tokens = authService.register(dto);
+    AuthTokenResponseDto tokens = authService.register(dto);
 
     assertThat(tokens.getAccessToken()).isEqualTo("access-token");
     assertThat(tokens.getRefreshToken()).isEqualTo("refresh-token-123");
 
-    verify(userService).save(any(User.class));
+    verify(userRepository).save(any(User.class));
     verify(refreshTokenRepository).save(refresh);
   }
 }

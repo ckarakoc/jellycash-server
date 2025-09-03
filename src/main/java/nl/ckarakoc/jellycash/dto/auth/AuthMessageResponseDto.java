@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthLogoutResponseDto {
+public class AuthMessageResponseDto {
 
   private boolean success;
+  private String message;
 }

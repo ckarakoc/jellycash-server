@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants.ApiPaths;
 import nl.ckarakoc.jellycash.dto.api.v1.pot.CreatePotRequestDto;
 import nl.ckarakoc.jellycash.dto.api.v1.pot.CreatePotResponseDto;
+import nl.ckarakoc.jellycash.dto.api.v1.pot.UpdatePotRequestDto;
 import nl.ckarakoc.jellycash.exception.CreationException;
 import nl.ckarakoc.jellycash.exception.NotImplementedException;
 import nl.ckarakoc.jellycash.model.Pot;
@@ -66,7 +67,7 @@ public class PotController {
       }
   )
   @GetMapping("/{id}")
-  public ResponseEntity getPot(@PathVariable @Schema(description = "ID of the pot to retrieve") Long id) {
+  public ResponseEntity getPot(@PathVariable @Schema(description = "ID of the pot") Long id) {
     throw new NotImplementedException();
   }
 
@@ -85,13 +86,17 @@ public class PotController {
   public ResponseEntity<CreatePotResponseDto> createPot(
       @RequestBody @Valid CreatePotRequestDto dto,
       @AuthenticationPrincipal User user) {
+    if (user == null) {
+      return ResponseEntity.status(401).build();
+    }
+
     // TODO: Write test
     Pot created = potService.createPot(dto, user)
         .orElseThrow(() -> new CreationException(Pot.class, "Failed to create pot"));
 
     URI location = ServletUriComponentsBuilder
         .fromCurrentRequest()
-        .path("{id}")
+        .path("/{id}")
         .buildAndExpand(created.getPotId())
         .toUri();
 
@@ -112,8 +117,11 @@ public class PotController {
       }
   )
   @PutMapping("/{id}")
-  public ResponseEntity updatePot(@PathVariable @Schema(description = "ID of the pot to update") Long id) {
+  public ResponseEntity updatePot(
+      @PathVariable @Schema(description = "ID of the pot") Long id,
+      @RequestBody @Valid UpdatePotRequestDto dto) {
     throw new NotImplementedException();
+    //potService.updatePot(dto, user);
   }
 
   @Operation(
@@ -130,7 +138,7 @@ public class PotController {
       }
   )
   @PatchMapping("/{id}")
-  public ResponseEntity partialUpdatePot(@PathVariable @Schema(description = "ID of the pot to partially update") Long id) {
+  public ResponseEntity partialUpdatePot(@PathVariable @Schema(description = "ID of the pot") Long id) {
     throw new NotImplementedException();
   }
 
@@ -147,7 +155,7 @@ public class PotController {
       }
   )
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePot(@PathVariable @Schema(description = "ID of the pot to delete") Long id) {
+  public ResponseEntity<Void> deletePot(@PathVariable @Schema(description = "ID of the pot") Long id) {
     throw new NotImplementedException();
   }
 }

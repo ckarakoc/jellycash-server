@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import nl.ckarakoc.jellycash.config.AppConstants;
 import nl.ckarakoc.jellycash.dto.auth.AuthRegisterRequestDto;
-import nl.ckarakoc.jellycash.dto.auth.AuthRegisterResponseDto;
+import nl.ckarakoc.jellycash.dto.auth.AuthTokenResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.security.service.JwtService;
 import nl.ckarakoc.jellycash.service.AuthService;
@@ -46,7 +46,7 @@ public class AuthControllerTests extends BaseControllerTest {
   private JwtService jwtService;
 
   @Test
-  void shouldReturn200_whenValidRequestGiven_register() throws Exception {
+  void shouldReturn204_whenValidRequestGiven_register() throws Exception {
     AuthRegisterRequestDto validRequest = AuthRegisterRequestDto.builder()
         .email("mark@rutte.nl")
         .password("Vergeten@123")
@@ -55,9 +55,9 @@ public class AuthControllerTests extends BaseControllerTest {
         .lastName("Rutte")
         .build();
 
-    AuthRegisterResponseDto mockTokens = AuthRegisterResponseDto.builder()
-        .accessToken("test_access_token")
-        .refreshToken("test_refresh_token")
+    AuthTokenResponseDto mockTokens = AuthTokenResponseDto.builder()
+        .accessToken("test_access_token_value")
+        .refreshToken("test_refresh_token_value")
         .build();
 
     when(authService.register(any())).thenReturn(mockTokens);
@@ -66,7 +66,7 @@ public class AuthControllerTests extends BaseControllerTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(validRequest)))
-        .andExpect(status().isOk())
+        .andExpect(status().isNoContent())
         .andExpect(cookie().exists("access_token"))
         .andExpect(cookie().httpOnly("access_token", true))
         .andExpect(cookie().secure("access_token", true))

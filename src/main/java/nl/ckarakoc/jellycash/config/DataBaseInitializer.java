@@ -18,9 +18,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * The DataBaseInitializer class is used to initialize the database with default data at application startup.
+ */
 @RequiredArgsConstructor
 @Component
-@Profile("!test")
+@Profile({"!test", "!prod"})
 public class DataBaseInitializer implements CommandLineRunner {
 
   private final RefreshTokenRepository refreshTokenRepository;
@@ -40,8 +43,7 @@ public class DataBaseInitializer implements CommandLineRunner {
       if (!exist) {
         Role newRole = new Role();
         newRole.setRole(role);
-        roleRepository.save(newRole);
-        allRoles.add(newRole);
+        allRoles.add(roleRepository.save(newRole));
         System.out.println("Inserted role: " + role);
       }
     }
@@ -65,7 +67,6 @@ public class DataBaseInitializer implements CommandLineRunner {
     refreshToken.setExpiryDate(expiry);
     refreshTokenRepository.save(refreshToken);
 
-    System.out.println("Inserted user: " + superUser.getEmail() + " and refresh token: "
-        + refreshToken.getToken());
+    System.out.println("Inserted user: " + superUser.getEmail() + " and refresh token: " + refreshToken.getToken());
   }
 }

@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
   private final Environment env;
 
   @ExceptionHandler(NotImplementedException.class)
-  public String handleNotImplementedException(NotImplementedException ex) {
-    return "Not implemented yet";
+  public ResponseEntity<String> handleNotImplementedException(NotImplementedException ex) {
+    return ResponseEntity.internalServerError().body("Not implemented yet");
   }
 
   @ExceptionHandler(Exception.class)
