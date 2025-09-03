@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants;
@@ -40,33 +41,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain) throws ServletException, IOException {
 
     String path = request.getRequestURI();
-    for (String noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
-      if (path.startsWith(noAuthRequiredEndpoint)) {
+    for (Pattern noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
+      if (noAuthRequiredEndpoint.matcher(path).matches()) {
         filterChain.doFilter(request, response);
         return;
       }
     }
 
     Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
-    final String accessToken;
 
-    if (cookie != null) {
-      // Cookie based authentication
-      accessToken = cookie.getValue();
-    } else {
+    if (cookie == null) {
       filterChain.doFilter(request, response);
       return;
     }
-    /* else{
-      // Header based authentication
-      final String authorizationHeader = request.getHeader(AppConstants.Header.AUTHORIZATION);
-      if (authorizationHeader == null || !authorizationHeader.startsWith(AppConstants.JwtTokenPrefix.BEARER)) {
-        filterChain.doFilter(request, response);
-        return;
-      }
-      accessToken = authorizationHeader.substring(AppConstants.JwtTokenPrefix.BEARER.length());
-    }
-    */
+
+    final String accessToken = cookie.getValue();
+
     try {
       final String userEmail = jwtService.extractUsername(accessToken);
       if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

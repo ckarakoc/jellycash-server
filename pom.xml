@@ -45,7 +45,6 @@
   <properties>
     <java.version>21</java.version>
     <!-- Property is meaningless, just so the ide error disappears -->
-    <jacocoArgLine></jacocoArgLine>
   </properties>
 
   <dependencies>
@@ -202,9 +201,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>
-            ${jacocoArgLine}
-            -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-            -Xshare:off
+            ${jacocoArgLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Xshare:off
           </argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
@@ -227,7 +224,7 @@
           </execution>
           <execution>
             <id>report</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>

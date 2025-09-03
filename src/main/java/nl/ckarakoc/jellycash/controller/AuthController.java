@@ -72,6 +72,7 @@ public class AuthController {
   public ResponseEntity<AuthMessageResponseDto> logout(
       @AuthenticationPrincipal User user,
       HttpServletResponse response) {
+    System.out.println("Logout: " + user);
 
     // Deletes tokens from client
     clearAuthCookies(response);
@@ -116,7 +117,6 @@ public class AuthController {
   )
   @PostMapping("/refresh")
   public ResponseEntity<Void> refresh(
-      @RequestBody @Valid AuthRefreshRequestDto authRefreshRequestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
     Cookie refreshCookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.REFRESH_TOKEN);

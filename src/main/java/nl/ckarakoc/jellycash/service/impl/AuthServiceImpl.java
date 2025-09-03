@@ -12,6 +12,7 @@ import nl.ckarakoc.jellycash.dto.auth.AuthTokenResponseDto;
 import nl.ckarakoc.jellycash.exception.AuthenticationConflictException;
 import nl.ckarakoc.jellycash.exception.AuthenticationException;
 import nl.ckarakoc.jellycash.exception.AuthenticationForbiddenException;
+import nl.ckarakoc.jellycash.exception.AuthenticationRefreshTokenException;
 import nl.ckarakoc.jellycash.model.AppRole;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
@@ -25,6 +26,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,12 +46,19 @@ public class AuthServiceImpl implements AuthService {
   private final RefreshTokenRepository refreshTokenRepository;
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
+  private final CompromisedPasswordChecker compromisedPasswordChecker;
 
   @Transactional
   @Override
   public AuthTokenResponseDto register(AuthRegisterRequestDto requestDto) {
     if (userRepository.existsByEmail(requestDto.getEmail())) {
       throw new AuthenticationConflictException("Email already exists");
+    }
+
+    CompromisedPasswordDecision decision = compromisedPasswordChecker.check(requestDto.getPassword());
+
+    if (decision.isCompromised()) {
+      throw new CompromisedPasswordException("Password is compromised");
     }
 
     User user = modelMapper.map(requestDto, User.class);
@@ -110,20 +121,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     if (!jwtService.isTokenValid(refreshToken)) {
-      throw new AuthenticationException("Refresh token is invalid");
+      throw new AuthenticationRefreshTokenException("Refresh token is invalid");
     }
 
     String email = jwtService.extractUsername(refreshToken);
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new AuthenticationException("User not found"));
+        .orElseThrow(() -> new AuthenticationRefreshTokenException("User not found"));
 
     if (!refreshTokenRepository.existsByTokenAndUser(refreshToken, user)) {
-      throw new AuthenticationException("Refresh token expired");
+      throw new AuthenticationRefreshTokenException("Refresh token expired");
     }
 
     return new AuthTokenResponseDto(jwtService.generateToken(user), refreshToken);
   }
 
+  @Transactional
   @Override
   public AuthMessageResponseDto logout(User user) {
     if (user == null) {
