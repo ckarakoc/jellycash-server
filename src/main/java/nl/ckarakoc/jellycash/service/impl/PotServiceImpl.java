@@ -36,10 +36,8 @@ public class PotServiceImpl implements PotService {
 
   @Override
   public Pot getPot(Long id, User user) {
-    Pot pot = potRepository.findByUserAndPotId(user, id);
-    if (pot == null) {
-      throw new UpdateEntityNotFoundException("Pot with id " + id + " not found");
-    }
+    Pot pot = potRepository.findByUserAndPotId(user, id)
+        .orElseThrow(() -> new UpdateEntityNotFoundException("Pot with id " + id + " not found"));
 
     return pot;
   }
@@ -47,10 +45,7 @@ public class PotServiceImpl implements PotService {
   @Transactional
   @Override
   public Pot updatePot(Long id, UpdatePotRequestDto dto, User user) {
-    Pot updated = potRepository.findByUserAndPotId(user, id);
-    if (updated == null) {
-      throw new UpdateEntityNotFoundException("Pot with id " + id + " not found");
-    }
+    Pot updated = getPot(id, user);
     modelMapper.map(dto, updated);
 
     return potRepository.save(updated);
@@ -59,10 +54,7 @@ public class PotServiceImpl implements PotService {
   @Transactional
   @Override
   public Pot partialUpdatePot(Long id, PartialUpdatePotRequestDto dto, User user) {
-    Pot updated = potRepository.findByUserAndPotId(user, id);
-    if (updated == null) {
-      throw new UpdateEntityNotFoundException("Pot with id " + id + " not found");
-    }
+    Pot updated = getPot(id, user);
     if (dto.getName() != null) {
       updated.setName(dto.getName());
     }
@@ -78,6 +70,7 @@ public class PotServiceImpl implements PotService {
   @Transactional
   @Override
   public void deletePot(Long id, User user) {
+    // no need to verify existence really... 1 less db call
     potRepository.deleteByPotIdAndUser(id, user);
   }
 }

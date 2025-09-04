@@ -15,7 +15,6 @@ import nl.ckarakoc.jellycash.dto.api.v1.pot.CreatePotResponseDto;
 import nl.ckarakoc.jellycash.dto.api.v1.pot.PartialUpdatePotRequestDto;
 import nl.ckarakoc.jellycash.dto.api.v1.pot.PotDto;
 import nl.ckarakoc.jellycash.dto.api.v1.pot.UpdatePotRequestDto;
-import nl.ckarakoc.jellycash.exception.CreationException;
 import nl.ckarakoc.jellycash.model.Pot;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.service.PotService;
