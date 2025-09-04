@@ -25,12 +25,12 @@ public class AuthRegisterRequestDto {
   @Email
   private String email;
 
-  @Schema(description = "The password of the user", example = "passWord@123")
+  @Schema(description = "The password of the user", example = "geenHerinneringen$44")
   @NotBlank
   @Password
   private String password;
 
-  @Schema(description = "The password confirmation of the user", example = "passWord@123")
+  @Schema(description = "The password confirmation of the user", example = "geenHerinneringen$44")
   @NotBlank
   @Password
   private String confirmPassword;

@@ -57,6 +57,12 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  @ExceptionHandler(UpdateEntityNotFoundException.class)
+  public ResponseEntity<ApiError> handleUpdateEntityNotFoundException(UpdateEntityNotFoundException ex) {
+    ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Update Entity Not Found", ex.getMessage());
+    return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+  }
+
   @ExceptionHandler(MalformedJwtException.class)
   public ResponseEntity<ApiError> handleMalformedJwtException(MalformedJwtException ex) {
     ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token",

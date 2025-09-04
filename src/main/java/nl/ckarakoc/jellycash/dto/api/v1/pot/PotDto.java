@@ -9,12 +9,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "The request for a create pot operation")
+@Schema(description = "A generic pot dto")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreatePotRequestDto {
+public class PotDto {
+
+  @Schema(description = "The id of the pot", example = "6")
+  @NotBlank
+  private Long potId;
 
   @Schema(description = "The name of the pot", example = "Alien Abduction Insurance")
   @NotBlank

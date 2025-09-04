@@ -1,32 +1,28 @@
 package nl.ckarakoc.jellycash.dto.api.v1.pot;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "The request for a create pot operation")
+@Schema(description = "The request for a partial update pot operation")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreatePotRequestDto {
+public class PartialUpdatePotRequestDto {
 
   @Schema(description = "The name of the pot", example = "Alien Abduction Insurance")
-  @NotBlank
-  private String name;
+  private String name = null;
 
   @Schema(description = "The balance of the pot", example = "42")
-  @NotNull
   @PositiveOrZero
-  private Long balance;
+  private Long balance = null;
 
   @Schema(description = "The maximum balance of the pot", example = "1000")
-  @NotNull
   @PositiveOrZero
-  private Long maxBalance;
+  private Long maxBalance = null;
 }
+

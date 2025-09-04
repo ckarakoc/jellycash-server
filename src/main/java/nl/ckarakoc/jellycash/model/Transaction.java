@@ -17,8 +17,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import nl.ckarakoc.jellycash.validator.ValidTransaction;
 import org.hibernate.annotations.CreationTimestamp;
 
+@ValidTransaction
 @Getter
 @Setter
 @Builder
@@ -37,6 +39,7 @@ public class Transaction {
   private Long amount;
   private Boolean isCredit;
   private Boolean isRecurring;
+  private String externalParty = null;
 
   @CreationTimestamp
   @Column(name = "created_at", updatable = false, nullable = false)
@@ -55,7 +58,7 @@ public class Transaction {
   private User recipient;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "recurring_bill_id", nullable = true)
+  @JoinColumn(name = "recurring_bill_id")
   @ToString.Exclude
   private RecurringBill recurringBill;
 

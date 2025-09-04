@@ -21,7 +21,7 @@ public class AuthLoginRequestDto {
   @Email
   private String email;
 
-  @Schema(description = "The password of the user", example = "passWord@123")
+  @Schema(description = "The password of the user", example = "geenHerinneringen$44")
   @NotBlank
   @Password
   private String password;

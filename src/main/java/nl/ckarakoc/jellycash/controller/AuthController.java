@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants;
+import nl.ckarakoc.jellycash.config.AppConstants.ApiPaths;
 import nl.ckarakoc.jellycash.dto.LoggedInUserDto;
 import nl.ckarakoc.jellycash.dto.auth.AuthLoginRequestDto;
 import nl.ckarakoc.jellycash.dto.auth.AuthMessageResponseDto;
@@ -34,11 +35,10 @@ import org.springframework.web.util.WebUtils;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(ApiPaths.AUTH)
 public class AuthController {
 
   private final AuthService authService;
-  // TODO: /auth/forgot-password | /auth/reset-password ( | /auth/verify-email | /auth/verify-phone | /auth/resend-verification )
 
   @Operation(
       summary = "Login",
@@ -49,7 +49,7 @@ public class AuthController {
           @ApiResponse(responseCode = "401", description = "Unauthorized: Authentication Error"),
       }
   )
-  @PostMapping("/login")
+  @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
   public ResponseEntity<Void> login(
       @RequestBody @Valid AuthLoginRequestDto authLoginRequestDto,
       HttpServletResponse response) {
@@ -68,11 +68,11 @@ public class AuthController {
           @ApiResponse(responseCode = "400", description = "Bad request: Validation Error"),
       }
   )
-  @PostMapping("/logout")
+  @PostMapping(value = "/logout", produces = "application/json")
   public ResponseEntity<AuthMessageResponseDto> logout(
       @AuthenticationPrincipal User user,
       HttpServletResponse response) {
-    System.out.println("Logout: " + user);
+    log.info("Logout: {}", user);
 
     // Deletes tokens from client
     clearAuthCookies(response);
@@ -147,7 +147,7 @@ public class AuthController {
       }
   )
   @PreAuthorize("isAuthenticated()")
-  @GetMapping("/me")
+  @GetMapping(value = "/me", produces = "application/json")
   public ResponseEntity<LoggedInUserDto> loggedInUserInfo() {
     return ResponseEntity.ok(authService.getLoggedInUserInfo());
   }
@@ -159,6 +159,16 @@ public class AuthController {
 
   @PostMapping("/reset-password")
   public ResponseEntity<Void> resetPassword() {
+    throw new NotImplementedException();
+  }
+
+  @GetMapping("/verify-email")
+  public ResponseEntity<Void> verifyEmail() {
+    throw new NotImplementedException();
+  }
+
+  @PostMapping("/resend-verification")
+  public ResponseEntity<Void> resendVerification() {
     throw new NotImplementedException();
   }
 

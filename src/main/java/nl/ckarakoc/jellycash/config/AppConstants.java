@@ -51,6 +51,7 @@ public class AppConstants {
    */
   public static class ApiPaths {
 
+    public static final String AUTH = "/auth";
     public static final String API_V1 = "/api/v1";
     public static final String Users = API_V1 + "/users";
     public static final String Pots = API_V1 + "/pots";

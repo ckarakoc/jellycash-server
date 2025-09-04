@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +50,8 @@ public class Pot {
   private LocalDateTime updatedAt;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", nullable = false)
+  @NotNull(message = "Pot must have a user")
   private User user;
 
   @OneToMany(mappedBy = "pot", cascade = CascadeType.ALL, orphanRemoval = true)
