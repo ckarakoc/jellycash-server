@@ -1,7 +1,9 @@
 package nl.ckarakoc.jellycash.dto.api.v1.pot;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,10 +21,12 @@ public class PartialUpdatePotRequestDto {
 
   @Schema(description = "The balance of the pot", example = "42")
   @PositiveOrZero
-  private Long balance = null;
+  @Digits(integer = 10, fraction = 2)
+  private BigDecimal balance = null;
 
   @Schema(description = "The maximum balance of the pot", example = "1000")
   @PositiveOrZero
-  private Long maxBalance = null;
+  @Digits(integer = 10, fraction = 2)
+  private BigDecimal maxBalance = null;
 }
 

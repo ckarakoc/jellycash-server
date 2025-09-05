@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +36,7 @@ public class RecurringBill {
   private Long recurringBillId;
 
   private String name;
-  private Long amount;
+  private BigDecimal amount;
   private Boolean isCredit;
   private Boolean isDone;
   private LocalDateTime dueDate;

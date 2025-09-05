@@ -55,6 +55,7 @@ public class AppConstants {
     public static final String API_V1 = "/api/v1";
     public static final String Users = API_V1 + "/users";
     public static final String Pots = API_V1 + "/pots";
+    public static final String Budgets = API_V1 + "/budgets";
   }
 
   /* Endpoints that don't require authentication */

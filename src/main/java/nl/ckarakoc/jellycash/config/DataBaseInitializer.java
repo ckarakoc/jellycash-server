@@ -1,6 +1,7 @@
 package nl.ckarakoc.jellycash.config;
 
 import io.jsonwebtoken.Claims;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import nl.ckarakoc.jellycash.model.Pot;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
+import nl.ckarakoc.jellycash.repository.BudgetRepository;
 import nl.ckarakoc.jellycash.repository.PotRepository;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.repository.RoleRepository;
@@ -36,6 +38,7 @@ public class DataBaseInitializer implements CommandLineRunner {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final PotRepository potRepository;
+  private final BudgetRepository budgetRepository;
 
   @Override
   public void run(String... args) {
@@ -60,6 +63,9 @@ public class DataBaseInitializer implements CommandLineRunner {
         .firstName("Mark")
         .lastName("Rutte")
         .avatar("assets/images/avatars/mark-rutte.jpg")
+        .balance(new BigDecimal("4836.00"))
+        .income(new BigDecimal("3814.25"))
+        .expenses(new BigDecimal("1700.50"))
         .build();
     userRepository.save(superUser);
 
@@ -75,6 +81,7 @@ public class DataBaseInitializer implements CommandLineRunner {
 
     createMockUsers();
     createMockPots(superUser);
+    createMockBudgets(superUser);
   }
 
   private void createMockUsers() {
@@ -234,37 +241,42 @@ public class DataBaseInitializer implements CommandLineRunner {
     log.debug("Inserting mock pots...");
     potRepository.save(Pot.builder()
         .name("Savings")
-        .balance(159L)
-        .maxBalance(2000L)
+        .balance(BigDecimal.valueOf(159))
+        .maxBalance(BigDecimal.valueOf(2000))
         .user(user)
         .build());
 
     potRepository.save(Pot.builder()
         .name("Concert Ticket")
-        .balance(110L)
-        .maxBalance(150L)
+        .balance(BigDecimal.valueOf(110))
+        .maxBalance(BigDecimal.valueOf(150))
         .user(user)
         .build());
 
     potRepository.save(Pot.builder()
         .name("Gift")
-        .balance(110L)
-        .maxBalance(150L)
+        .balance(BigDecimal.valueOf(110))
+        .maxBalance(BigDecimal.valueOf(150))
         .user(user)
         .build());
 
     potRepository.save(Pot.builder()
         .name("New Laptop")
-        .balance(10L)
-        .maxBalance(1000L)
+        .balance(BigDecimal.valueOf(10))
+        .maxBalance(BigDecimal.valueOf(1000))
         .user(user)
         .build());
 
     potRepository.save(Pot.builder()
         .name("Holiday")
-        .balance(531L)
-        .maxBalance(1440L)
+        .balance(BigDecimal.valueOf(531))
+        .maxBalance(BigDecimal.valueOf(1440))
         .user(user)
         .build());
+  }
+
+  private void createMockBudgets(User superUser) {
+    log.debug("Inserting mock budgets...");
+    // TODO
   }
 }

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -34,11 +35,13 @@ public class Budget {
   @Column(name = "budget_id", nullable = false)
   private Long budgetId;
 
-  private Long amount;
-  private Long targetAmount;
+  private BigDecimal amount;
+  private BigDecimal targetAmount;
   private Boolean isDone;
   private LocalDateTime startDate;
   private LocalDateTime dueDate;
+  @Column(length = 7) // # + 6 hex digits
+  private String color;
   @CreationTimestamp
   @Column(name = "created_at", updatable = false, nullable = false)
   private LocalDateTime createdAt;

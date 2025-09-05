@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,7 @@ public class PotTransaction {
   @Column(name = "pot_transaction_id", nullable = false)
   private Long potTransactionId;
 
-  private Long amount;
+  private BigDecimal amount;
   private Boolean isCredit;
 
   @CreationTimestamp

@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -39,8 +40,8 @@ public class Pot {
   private Long potId;
 
   private String name;
-  private Long balance;
-  private Long maxBalance;
+  private BigDecimal balance;
+  private BigDecimal maxBalance;
 
   @CreationTimestamp
   @Column(name = "created_at", updatable = false, nullable = false)

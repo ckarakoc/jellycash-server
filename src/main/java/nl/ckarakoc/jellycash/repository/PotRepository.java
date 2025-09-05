@@ -10,7 +10,7 @@ public interface PotRepository extends JpaRepository<Pot, Long> {
 
   List<Pot> findAllByUser(User user);
 
-  Optional<Pot> findByUserAndPotId(User user, Long potId);
+  Optional<Pot> findByPotIdAndUser(Long potId, User user);
 
   void deleteByPotIdAndUser(Long potId, User user);
 }

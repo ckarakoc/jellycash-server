@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -57,11 +58,11 @@ public class User implements UserDetails {
   @Builder.Default
   private String currency = "EUR";
   @Builder.Default
-  private Long balance = 0L;
+  private BigDecimal balance = BigDecimal.ZERO;
   @Builder.Default
-  private Long income = 0L;
+  private BigDecimal income = BigDecimal.ZERO;
   @Builder.Default
-  private Long expenses = 0L;
+  private BigDecimal expenses = BigDecimal.ZERO;
 
   // region security
   @Column(nullable = false)

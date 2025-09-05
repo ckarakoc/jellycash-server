@@ -1,5 +1,7 @@
 package nl.ckarakoc.jellycash.dto;
 
+import jakarta.validation.constraints.Digits;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +20,10 @@ public class UpdateUserResponseDto {
   private String lastName;
   private String avatar;
   private String currency;
-  private Long balance;
-  private Long income;
-  private Long expenses;
+  @Digits(integer = 10, fraction = 2)
+  private BigDecimal balance;
+  @Digits(integer = 10, fraction = 2)
+  private BigDecimal income;
+  @Digits(integer = 10, fraction = 2)
+  private BigDecimal expenses;
 }

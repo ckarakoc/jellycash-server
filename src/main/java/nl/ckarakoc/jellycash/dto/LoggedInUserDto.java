@@ -1,5 +1,6 @@
 package nl.ckarakoc.jellycash.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -19,9 +20,9 @@ public class LoggedInUserDto {
   private String lastName;
   private String avatar;
   private String currency;
-  private Long balance;
-  private Long income;
-  private Long expenses;
+  private BigDecimal balance;
+  private BigDecimal income;
+  private BigDecimal expenses;
   private boolean enabled;
   private Set<String> roles;
   private LocalDateTime createdAt;
