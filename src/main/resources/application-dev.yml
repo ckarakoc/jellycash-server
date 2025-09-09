@@ -30,6 +30,7 @@ logging:
   level:
     root: INFO
     nl.ckarakoc.jellycash: DEBUG
+    management.endpoint.prometheus: WARN
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG

@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    include: dev
+
+  # Override default dev profile
+  datasource:
+    url: jdbc:postgresql://jellycash-db:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}

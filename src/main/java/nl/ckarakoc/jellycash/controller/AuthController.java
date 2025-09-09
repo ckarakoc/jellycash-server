@@ -2,6 +2,7 @@ package nl.ckarakoc.jellycash.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +37,7 @@ import org.springframework.web.util.WebUtils;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(ApiPaths.AUTH)
+@Tag(name = "Authentication", description = "Cookie based jwt-token authentication endpoints")
 public class AuthController {
 
   private final AuthService authService;
@@ -125,13 +127,12 @@ public class AuthController {
     }
 
     AuthTokenResponseDto tokens = authService.refresh(new AuthRefreshRequestDto(refreshCookie.getValue()));
-    ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN,
-            tokens.getAccessToken())
+    ResponseCookie accessCookie = ResponseCookie.from(AppConstants.JwtCookieNames.ACCESS_TOKEN, tokens.getAccessToken())
         .httpOnly(true)
         .secure(true)
         .path("/")
         .maxAge(AppConstants.JwtTokenExpiry.ACCESS_TOKEN_EXPIRY)
-        .sameSite("Strict")
+        .sameSite("Lax")
         .build();
     response.addHeader("Set-Cookie", accessCookie.toString());
     return ResponseEntity.noContent().build();
@@ -192,14 +193,14 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(AppConstants.JwtTokenExpiry.ACCESS_TOKEN_EXPIRY)
-        .sameSite("Strict")
+        .sameSite("Lax")
         .build();
     ResponseCookie refreshCookie = ResponseCookie.from(AppConstants.JwtCookieNames.REFRESH_TOKEN, tokens.getRefreshToken())
         .httpOnly(true)
         .secure(true)
         .path("/")
         .maxAge(AppConstants.JwtTokenExpiry.REFRESH_TOKEN_EXPIRY)
-        .sameSite("Strict")
+        .sameSite("Lax")
         .build();
 
     response.addHeader("Set-Cookie", accessCookie.toString());
@@ -212,7 +213,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(0)
-        .sameSite("Strict")
+        .sameSite("Lax")
         .build();
 
     ResponseCookie clearRefresh = ResponseCookie.from(AppConstants.JwtCookieNames.REFRESH_TOKEN, "")
@@ -220,7 +221,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(0)
-        .sameSite("Strict")
+        .sameSite("Lax")
         .build();
 
     response.addHeader("Set-Cookie", clearAccess.toString());

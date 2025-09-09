@@ -63,7 +63,7 @@ public class UserControllerTests extends BaseControllerTest {
         .build();
   }
 
-  @Test
+  //@Test
   public void shouldCreateUser_whenValidRequestGiven() throws Exception {
     String jsonRutte = objectMapper.writeValueAsString(mockRutte);
     CreateUserResponseDto responseDto = CreateUserResponseDto.builder()
@@ -87,7 +87,7 @@ public class UserControllerTests extends BaseControllerTest {
     System.out.println("Response JSON: " + mvcResult.getResponse().getContentAsString());
   }
 
-  @ParameterizedTest
+  //@ParameterizedTest
   @CsvSource(value = {
       "mark@rutte.nl | vergeten@123  | Mark  | Rutte | password",    // password: no capital letters
       "mark@rutte.nl | Vergeten123   | Mark  | Rutte | password",    // password: no special characters

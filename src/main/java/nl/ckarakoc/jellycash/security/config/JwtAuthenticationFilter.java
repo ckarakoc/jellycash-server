@@ -39,15 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain) throws ServletException, IOException {
-
-    String path = request.getRequestURI();
-    for (Pattern noAuthRequiredEndpoint : AppConstants.NO_AUTH_ENDPOINTS) {
-      if (noAuthRequiredEndpoint.matcher(path).matches()) {
-        filterChain.doFilter(request, response);
-        return;
-      }
-    }
-
     Cookie cookie = WebUtils.getCookie(request, AppConstants.JwtCookieNames.ACCESS_TOKEN);
 
     if (cookie == null) {

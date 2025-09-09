@@ -40,6 +40,7 @@ public class Transaction {
   private BigDecimal amount;
   private Boolean isCredit;
   private Boolean isRecurring;
+  @Builder.Default
   private String externalParty = null;
 
   @CreationTimestamp

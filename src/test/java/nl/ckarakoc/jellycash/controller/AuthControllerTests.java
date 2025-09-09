@@ -77,14 +77,14 @@ public class AuthControllerTests extends BaseControllerTest {
           .andExpect(cookie().path("access_token", "/"))
           .andExpect(cookie().maxAge("access_token",
               (int) AppConstants.JwtTokenExpiry.ACCESS_TOKEN_EXPIRY.getSeconds()))
-          .andExpect(cookie().sameSite("access_token", "Strict"))
+          .andExpect(cookie().sameSite("access_token", "Lax"))
           .andExpect(cookie().exists("refresh_token"))
           .andExpect(cookie().httpOnly("refresh_token", true))
           .andExpect(cookie().secure("refresh_token", true))
           .andExpect(cookie().path("refresh_token", "/"))
           .andExpect(cookie().maxAge("refresh_token",
               (int) AppConstants.JwtTokenExpiry.REFRESH_TOKEN_EXPIRY.getSeconds()))
-          .andExpect(cookie().sameSite("refresh_token", "Strict"))
+          .andExpect(cookie().sameSite("refresh_token", "Lax"))
           .andExpect(header().exists("Set-Cookie"))
           .andReturn();
 

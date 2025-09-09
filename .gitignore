@@ -76,5 +76,6 @@ buildNumber.properties
 application*.properties
 application*.yml
 !application-dev.*
+!application-docker.*
 
 /ignored

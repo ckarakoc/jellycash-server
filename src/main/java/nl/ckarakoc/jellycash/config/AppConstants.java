@@ -2,7 +2,6 @@ package nl.ckarakoc.jellycash.config;
 
 
 import java.time.Duration;
-import java.util.regex.Pattern;
 
 /**
  * A utility class that provides constant values grouped into nested static classes for organization and clarity.
@@ -59,9 +58,4 @@ public class AppConstants {
     public static final String Categories = API_V1 + "/categories";
     public static final String Transactions = API_V1 + "/transactions";
   }
-
-  /* Endpoints that don't require authentication */
-  public static final Pattern[] NO_AUTH_ENDPOINTS = new Pattern[]{
-      Pattern.compile("^/auth/(?!logout).*")
-  };
 }

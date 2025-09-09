@@ -50,15 +50,17 @@ public class SecurityConfig {
           });
         })
         .authorizeHttpRequests(authorize -> {
-          // Swagger UI paths
-          authorize.requestMatchers("/swagger-ui/**").permitAll()
-              .requestMatchers("/swagger-ui.html").permitAll()
-              .requestMatchers("/v3/api-docs/**").permitAll()
-              .requestMatchers("/swagger-resources/**").permitAll()
-              .requestMatchers("/webjars/**").permitAll()
+          authorize
+              // Swagger
+              .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+
+              // Auth
+              .requestMatchers("/auth/me", "/auth/logout").authenticated()
               .requestMatchers("/auth/**").permitAll()
+
               .requestMatchers("/actuator/**").permitAll() // TODO: Fix this. actuator should be secured
 
+              // Api Endpoints
               .requestMatchers("/api/v1/**").authenticated()
               .requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())
               .anyRequest().authenticated();

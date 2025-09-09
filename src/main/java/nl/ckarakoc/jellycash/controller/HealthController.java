@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
   @Operation(
-      summary = "health",
+      summary = "Health",
       description = "Health check endpoint",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success")
@@ -25,7 +25,7 @@ public class HealthController {
   }
 
   @Operation(
-      summary = "health: pots",
+      summary = "Health: pots",
       description = "Health check endpoint: pots",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success")
@@ -37,7 +37,7 @@ public class HealthController {
   }
 
   @Operation(
-      summary = "health: users",
+      summary = "Health: users",
       description = "Health check endpoint: users",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success")
@@ -49,7 +49,7 @@ public class HealthController {
   }
 
   @Operation(
-      summary = "health: auth",
+      summary = "Health: auth",
       description = "Health check endpoint: auth",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success")
@@ -59,4 +59,41 @@ public class HealthController {
   public ResponseEntity<Void> authHealth() {
     return ResponseEntity.ok().build();
   }
+
+  @Operation(
+      summary = "Health: categories",
+      description = "Health check endpoint: categories",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "Success")
+      }
+  )
+  @GetMapping(ApiPaths.Categories + "/health")
+  public ResponseEntity<Void> categoriesHealth() {
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Health: budgets",
+      description = "Health check endpoint: budgets",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "Success")
+      }
+  )
+  @GetMapping(ApiPaths.Budgets + "/health")
+  public ResponseEntity<Void> budgetsHealth() {
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Health: transactions",
+      description = "Health check endpoint: transactions",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "Success")
+      }
+  )
+  @GetMapping(ApiPaths.Transactions + "/health")
+  public ResponseEntity<Void> transactionsHealth() {
+    return ResponseEntity.ok().build();
+  }
+
 }

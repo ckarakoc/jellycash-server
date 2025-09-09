@@ -27,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class AuthServiceTests extends BaseServiceTest {
@@ -47,6 +49,8 @@ class AuthServiceTests extends BaseServiceTest {
   private AuthenticationManager authenticationManager;
   @Mock
   private RefreshTokenRepository refreshTokenRepository;
+  @Mock
+  private CompromisedPasswordChecker compromisedPasswordChecker;
 
   @InjectMocks
   private AuthServiceImpl authService;
@@ -97,6 +101,7 @@ class AuthServiceTests extends BaseServiceTest {
       when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
       when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refresh);
       when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refresh);
+      when(compromisedPasswordChecker.check(any(String.class))).thenReturn(new CompromisedPasswordDecision(false));
 
       AuthTokenResponseDto tokens = authService.register(dto);
 
