@@ -155,6 +155,10 @@ public class User implements UserDetails {
   @ToString.Exclude
   private List<Transaction> receivedTransactions;
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
+  private List<Category> categories;
+
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof User user)) {

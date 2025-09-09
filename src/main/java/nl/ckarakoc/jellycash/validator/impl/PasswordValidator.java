@@ -8,7 +8,6 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    return (value != null && value.length() >= 8 && value.matches(
-        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$"));
+    return (value != null && value.length() >= 8 && value.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$"));
   }
 }

@@ -10,13 +10,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.config.AppConstants.ApiPaths;
-import nl.ckarakoc.jellycash.dto.api.v1.pot.CreatePotRequestDto;
-import nl.ckarakoc.jellycash.dto.api.v1.pot.PartialUpdatePotRequestDto;
-import nl.ckarakoc.jellycash.dto.api.v1.pot.PotDto;
-import nl.ckarakoc.jellycash.dto.api.v1.pot.UpdatePotRequestDto;
-import nl.ckarakoc.jellycash.model.Pot;
+import nl.ckarakoc.jellycash.dto.api.v1.transaction.CreateTransactionRequestDto;
+import nl.ckarakoc.jellycash.dto.api.v1.transaction.TransactionDto;
+import nl.ckarakoc.jellycash.exception.NotImplementedException;
+import nl.ckarakoc.jellycash.model.Transaction;
 import nl.ckarakoc.jellycash.model.User;
-import nl.ckarakoc.jellycash.service.PotService;
+import nl.ckarakoc.jellycash.service.TransactionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,51 +33,48 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(ApiPaths.Pots)
-@Tag(name = "Pots", description = "Operations related to pots, including pot transactions")
-public class PotController {
+@RequestMapping(ApiPaths.Transactions)
+@Tag(name = "Transactions", description = "Operations related to transactions")
+public class TransactionController {
 
-  private final PotService potService;
+  private final TransactionService transactionService;
   private final ModelMapper modelMapper;
 
   @Operation(
-      summary = "List all pots",
-      description = "Retrieves all available pots of the logged in user",
+      summary = "List all transactions",
+      description = "Retrieves all available transactions of the logged in user",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success"),
           @ApiResponse(responseCode = "400", description = "Invalid request")
       }
   )
   @GetMapping
-  public ResponseEntity<List<PotDto>> getAllPots(@AuthenticationPrincipal User user) {
-    return ResponseEntity.ok(potService.getAllPots(user).stream().map(pot -> {
-      log.debug(pot.toString());
-      return modelMapper.map(pot, PotDto.class);
-    }).toList());
+  public ResponseEntity<List<TransactionDto>> getAllTransactions(@AuthenticationPrincipal User user) {
+    return ResponseEntity.ok(transactionService.getAllTransactions(user).stream().map(transaction -> modelMapper.map(transaction, TransactionDto.class)).toList());
   }
 
   @Operation(
-      summary = "Get pot by ID",
-      description = "Retrieves a specific pot by its ID of the logged in user",
+      summary = "Get transaction by ID",
+      description = "Retrieves a specific transaction by its ID of the logged in user",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success"),
           @ApiResponse(responseCode = "400", description = "Bad request: Invalid data"),
           @ApiResponse(responseCode = "401", description = "Unauthorized"),
           @ApiResponse(responseCode = "403", description = "Forbidden"),
-          @ApiResponse(responseCode = "404", description = "Pot not found"),
+          @ApiResponse(responseCode = "404", description = "Transaction not found"),
           @ApiResponse(responseCode = "500", description = "Internal Server Error")
       }
   )
   @GetMapping("/{id}")
-  public ResponseEntity<PotDto> getPot(
-      @PathVariable @Schema(description = "ID of the pot", example = "1") Long id,
+  public ResponseEntity<TransactionDto> getTransaction(
+      @PathVariable @Schema(description = "ID of the transaction") Long id,
       @AuthenticationPrincipal User user) {
-    return ResponseEntity.ok(modelMapper.map(potService.getPot(id, user), PotDto.class));
+    return ResponseEntity.ok(modelMapper.map(transactionService.getTransaction(id, user), TransactionDto.class));
   }
 
   @Operation(
-      summary = "Create a new pot",
-      description = "Creates a new pot with the provided data for the logged in user",
+      summary = "Create a new transaction",
+      description = "Creates a new transaction with the provided data for the logged in user",
       responses = {
           @ApiResponse(responseCode = "201", description = "Created"),
           @ApiResponse(responseCode = "400", description = "Bad request: Missing or invalid data"),
@@ -88,80 +84,76 @@ public class PotController {
       }
   )
   @PostMapping
-  public ResponseEntity<Void> createPot(
-      @RequestBody @Valid CreatePotRequestDto dto,
+  public ResponseEntity<Void> createTransaction(
+      @RequestBody @Valid CreateTransactionRequestDto dto,
       @AuthenticationPrincipal User user) {
-    Pot created = potService.createPot(dto, user);
+    Transaction created = transactionService.createTransaction(dto, user);
 
     URI location = ServletUriComponentsBuilder
         .fromCurrentRequest()
         .path("/{id}")
-        .buildAndExpand(created.getPotId())
+        .buildAndExpand(created.getTransactionId())
         .toUri();
 
     return ResponseEntity.created(location).build();
   }
 
   @Operation(
-      summary = "Fully update a pot",
-      description = "Updates an existing pot by replacing all its data of the logged in user",
+      summary = "Fully update a transaction",
+      description = "Updates an existing transaction by replacing all its data of the logged in user",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success"),
           @ApiResponse(responseCode = "400", description = "Bad request: Invalid data or ID"),
           @ApiResponse(responseCode = "401", description = "Unauthorized"),
           @ApiResponse(responseCode = "403", description = "Forbidden"),
-          @ApiResponse(responseCode = "404", description = "Pot not found"),
+          @ApiResponse(responseCode = "404", description = "Transaction not found"),
           @ApiResponse(responseCode = "409", description = "Conflict: Update conflict"),
           @ApiResponse(responseCode = "500", description = "Internal Server Error")
       }
   )
   @PutMapping("/{id}")
-  public ResponseEntity<PotDto> updatePot(
-      @PathVariable @Schema(description = "ID of the pot", example = "1") Long id,
-      @RequestBody @Valid UpdatePotRequestDto dto,
-      @AuthenticationPrincipal User user) {
-
-    return ResponseEntity.ok(modelMapper.map(potService.updatePot(id, dto, user), PotDto.class));
+  public ResponseEntity<TransactionDto> updateTransaction(
+      @PathVariable @Schema(description = "ID of the transaction", example = "1") Long id) {
+    throw new NotImplementedException();
   }
 
   @Operation(
-      summary = "Partially update a pot",
-      description = "Updates one or more fields of an existing pot of the logged in user",
+      summary = "Partially update a transaction",
+      description = "Updates one or more fields of an existing transaction of the logged in user",
       responses = {
           @ApiResponse(responseCode = "200", description = "Success"),
           @ApiResponse(responseCode = "400", description = "Bad request: Invalid data or ID"),
           @ApiResponse(responseCode = "401", description = "Unauthorized"),
           @ApiResponse(responseCode = "403", description = "Forbidden"),
-          @ApiResponse(responseCode = "404", description = "Pot not found"),
+          @ApiResponse(responseCode = "404", description = "Transaction not found"),
           @ApiResponse(responseCode = "409", description = "Conflict: Update conflict"),
           @ApiResponse(responseCode = "500", description = "Internal Server Error")
       }
   )
   @PatchMapping("/{id}")
-  public ResponseEntity<PotDto> partialUpdatePot(
-      @PathVariable @Schema(description = "ID of the pot", example = "1") Long id,
-      @RequestBody @Valid  PartialUpdatePotRequestDto dto,
-      @AuthenticationPrincipal User user) {
-    return ResponseEntity.ok(modelMapper.map(potService.partialUpdatePot(id, dto, user), PotDto.class));
+  public ResponseEntity<TransactionDto> partialUpdateTransaction(
+      @PathVariable @Schema(description = "ID of the transaction") Long id) {
+    throw new NotImplementedException();
   }
 
   @Operation(
-      summary = "Delete a pot",
-      description = "Deletes a pot by its ID of the logged in user",
+      summary = "Delete a transaction",
+      description = "Deletes a transaction by its ID of the logged in user",
       responses = {
-          @ApiResponse(responseCode = "204", description = "No Content: Pot deleted successfully"),
+          @ApiResponse(responseCode = "204", description = "No Content: Transaction deleted successfully"),
           @ApiResponse(responseCode = "400", description = "Bad request: Invalid ID"),
           @ApiResponse(responseCode = "401", description = "Unauthorized"),
           @ApiResponse(responseCode = "403", description = "Forbidden"),
-          @ApiResponse(responseCode = "404", description = "Pot not found"),
+          @ApiResponse(responseCode = "404", description = "Transaction not found"),
           @ApiResponse(responseCode = "500", description = "Internal Server Error")
       }
   )
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePot(
-      @PathVariable @Schema(description = "ID of the pot", example = "1") Long id,
+  public ResponseEntity<Void> deleteTransaction(
+      @PathVariable @Schema(description = "ID of the transaction") Long id,
       @AuthenticationPrincipal User user) {
-    potService.deletePot(id, user);
-    return ResponseEntity.noContent().build();
+    // transactionService.deleteTransaction(id, user);
+    // return ResponseEntity.noContent().build();
+    throw new NotImplementedException();
   }
 }

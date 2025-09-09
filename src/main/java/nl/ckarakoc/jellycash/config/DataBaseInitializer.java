@@ -8,11 +8,13 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.ckarakoc.jellycash.model.AppRole;
+import nl.ckarakoc.jellycash.model.Category;
 import nl.ckarakoc.jellycash.model.Pot;
 import nl.ckarakoc.jellycash.model.RefreshToken;
 import nl.ckarakoc.jellycash.model.Role;
 import nl.ckarakoc.jellycash.model.User;
 import nl.ckarakoc.jellycash.repository.BudgetRepository;
+import nl.ckarakoc.jellycash.repository.CategoryRepository;
 import nl.ckarakoc.jellycash.repository.PotRepository;
 import nl.ckarakoc.jellycash.repository.RefreshTokenRepository;
 import nl.ckarakoc.jellycash.repository.RoleRepository;
@@ -39,6 +41,7 @@ public class DataBaseInitializer implements CommandLineRunner {
   private final JwtService jwtService;
   private final PotRepository potRepository;
   private final BudgetRepository budgetRepository;
+  private final CategoryRepository categoryRepository;
 
   @Override
   public void run(String... args) {
@@ -69,7 +72,7 @@ public class DataBaseInitializer implements CommandLineRunner {
         .build();
     userRepository.save(superUser);
 
-    String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJrQHJ1dHRlLm5sIiwiaWF0IjoxNzU3MDAyNDEzLCJleHAiOjE3NTc2MDcyMTN9.BQtQsHHafrTprN3vPxNQ9ERGlhavGb0p04ZmsBxnTXI";
+    String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJrQHJ1dHRlLm5sIiwiaWF0IjoxNzU3NDE1NzA3LCJleHAiOjE3NTgwMjA1MDd9.nWV22CzmvojPfIhBKKcu-L_KvbnDDhkHMbfMYsbKFbI";
     Date expiry = jwtService.extractClaim(token, Claims::getExpiration);
     RefreshToken refreshToken = new RefreshToken();
     refreshToken.setUser(superUser);
@@ -81,6 +84,7 @@ public class DataBaseInitializer implements CommandLineRunner {
 
     createMockUsers();
     createMockPots(superUser);
+    createMockCategories(superUser);
     createMockBudgets(superUser);
   }
 
@@ -117,6 +121,16 @@ public class DataBaseInitializer implements CommandLineRunner {
         .build());
 
     userRepository.save(User.builder()
+        .email("harper.edwards@example.com")
+        .password(passwordEncoder.encode("geenHerinneringen$44"))
+        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
+            .orElseThrow(() -> new RuntimeException("Role not found"))))
+        .firstName("Harper")
+        .lastName("Edwards")
+        .avatar("assets/images/avatars/harper-edwards.jpg")
+        .build());
+
+    userRepository.save(User.builder()
         .email("liam.hughes@example.com")
         .password(passwordEncoder.encode("geenHerinneringen$44"))
         .roles(Set.of(roleRepository.findByRole(AppRole.USER)
@@ -147,6 +161,16 @@ public class DataBaseInitializer implements CommandLineRunner {
         .build());
 
     userRepository.save(User.builder()
+        .email("rina.sato@example.com")
+        .password(passwordEncoder.encode("geenHerinneringen$44"))
+        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
+            .orElseThrow(() -> new RuntimeException("Role not found"))))
+        .firstName("Rina")
+        .lastName("Sato")
+        .avatar("assets/images/avatars/rina-sato.jpg")
+        .build());
+
+    userRepository.save(User.builder()
         .email("james.thompson@example.com")
         .password(passwordEncoder.encode("geenHerinneringen$44"))
         .roles(Set.of(roleRepository.findByRole(AppRole.USER)
@@ -164,6 +188,16 @@ public class DataBaseInitializer implements CommandLineRunner {
         .firstName("Ella")
         .lastName("Phillips")
         .avatar("assets/images/avatars/ella-phillips.jpg")
+        .build());
+
+    userRepository.save(User.builder()
+        .email("yuna.kim@example.com")
+        .password(passwordEncoder.encode("geenHerinneringen$44"))
+        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
+            .orElseThrow(() -> new RuntimeException("Role not found"))))
+        .firstName("Yuna")
+        .lastName("Kim")
+        .avatar("assets/images/avatars/yuna-kim.jpg")
         .build());
 
     userRepository.save(User.builder()
@@ -204,36 +238,6 @@ public class DataBaseInitializer implements CommandLineRunner {
         .firstName("William")
         .lastName("Harris")
         .avatar("assets/images/avatars/william-harris.jpg")
-        .build());
-
-    userRepository.save(User.builder()
-        .email("rina.sato@example.com")
-        .password(passwordEncoder.encode("geenHerinneringen$44"))
-        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
-            .orElseThrow(() -> new RuntimeException("Role not found"))))
-        .firstName("Rina")
-        .lastName("Sato")
-        .avatar("assets/images/avatars/rina-sato.jpg")
-        .build());
-
-    userRepository.save(User.builder()
-        .email("yuna.kim@example.com")
-        .password(passwordEncoder.encode("geenHerinneringen$44"))
-        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
-            .orElseThrow(() -> new RuntimeException("Role not found"))))
-        .firstName("Yuna")
-        .lastName("Kim")
-        .avatar("assets/images/avatars/yuna-kim.jpg")
-        .build());
-
-    userRepository.save(User.builder()
-        .email("harper.edwards@example.com")
-        .password(passwordEncoder.encode("geenHerinneringen$44"))
-        .roles(Set.of(roleRepository.findByRole(AppRole.USER)
-            .orElseThrow(() -> new RuntimeException("Role not found"))))
-        .firstName("Harper")
-        .lastName("Edwards")
-        .avatar("assets/images/avatars/harper-edwards.jpg")
         .build());
   }
 
@@ -278,5 +282,58 @@ public class DataBaseInitializer implements CommandLineRunner {
   private void createMockBudgets(User superUser) {
     log.debug("Inserting mock budgets...");
     // TODO
+  }
+
+  private void createMockCategories(User superUser) {
+    log.debug("Inserting mock categories...");
+    categoryRepository.save(Category.builder()
+        .name("Entertainment")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Bills")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Groceries")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Dining Out")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Transportation")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Personal Care")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Education")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Lifestyle")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("Shopping")
+        .user(superUser)
+        .build());
+
+    categoryRepository.save(Category.builder()
+        .name("General")
+        .user(superUser)
+        .build());
   }
 }

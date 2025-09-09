@@ -1,3 +1,4 @@
+debug: false
 spring:
   application:
     name: jellycash
@@ -11,6 +12,7 @@ spring:
     hibernate:
       ddl-auto: create
     open-in-view: true
+    show-sql: true
   security:
     user:
       name: prometheus
@@ -23,6 +25,7 @@ security:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
 
+
 logging:
   level:
     root: INFO
@@ -32,6 +35,8 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.boot.actuate.endpoint.web.servlet: WARN
+
 
 management:
   endpoints:
