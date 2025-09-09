@@ -1,9 +1,64 @@
+debug: false
 spring:
-  profiles:
-    include: dev
-
-  # Override default dev profile
+  application:
+    name: jellycash
+  config:
+    import: file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://jellycash-db:${DB_PORT}/${DB_NAME}
+    url: jdbc:postgresql://jellycash-db:5432/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: true
+    show-sql: false
+  security:
+    user:
+      name: prometheus
+      password: prometheus
+  devtools:
+    restart:
+      enabled: true
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+
+
+logging:
+  level:
+    root: INFO
+    nl.ckarakoc.jellycash: DEBUG
+    management.endpoint.prometheus: WARN
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.boot.actuate.endpoint.web.servlet: WARN
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      access: unrestricted
+
+  metrics:
+    tags:
+      application: jellycash
+    enable:
+      # Not needed for newer versions of Spring Boot, but for older versions, here it is...
+      jvm: true              # JVM memory, GC, threads
+      process: true          # Process uptime, CPU, open file descriptors
+      logback: true          # Logging events
+      system: true           # System CPU, memory
+      http: true             # HTTP request metrics (status, timing)
+      datasource: true       # JDBC / datasource pool metrics
+      cache: true            # Caching metrics (if you use Spring Cache)
+      tomcat: true           # If using embedded Tomcat
+      prometheus: true       # Prometheus binder (if needed)

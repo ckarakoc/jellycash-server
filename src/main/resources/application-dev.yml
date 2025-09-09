@@ -3,7 +3,7 @@ spring:
   application:
     name: jellycash
   config:
-    import: optional:file:.env[.properties]
+    import: file:.env[.properties]
   datasource:
     url: jdbc:postgresql://localhost:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
@@ -12,7 +12,7 @@ spring:
     hibernate:
       ddl-auto: create
     open-in-view: true
-    show-sql: true
+    show-sql: false
   security:
     user:
       name: prometheus

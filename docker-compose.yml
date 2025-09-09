@@ -35,6 +35,23 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  jellycash-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jellycash
+    restart: no
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      - jellycash-db
+      - prometheus
+      - grafana
+
 volumes:
   jellycash-data:
     driver: local

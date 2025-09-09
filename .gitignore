@@ -73,6 +73,7 @@ buildNumber.properties
 .env.local
 .env.*.local
 *.env
+*.env.*
 application*.properties
 application*.yml
 !application-dev.*
