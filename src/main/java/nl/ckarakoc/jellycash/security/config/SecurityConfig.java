@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import nl.ckarakoc.jellycash.model.AppRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
@@ -23,6 +24,7 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
@@ -63,10 +65,17 @@ public class SecurityConfig {
               // Api Endpoints
               .requestMatchers("/api/v1/**").authenticated()
               .requestMatchers("/admin/**").hasRole(AppRole.ADMIN.name())
+
               .anyRequest().authenticated();
         })
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(ex -> {
+          ex
+              .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+              .accessDeniedHandler((request, response, accessDeniedException) -> {
+                response.sendError(HttpStatus.FORBIDDEN.value(), "Access Denied");
+              });
+        })
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }

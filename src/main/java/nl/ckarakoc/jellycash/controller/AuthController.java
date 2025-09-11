@@ -147,7 +147,6 @@ public class AuthController {
           @ApiResponse(responseCode = "403", description = "Forbidden: User is not logged in"),
       }
   )
-  @PreAuthorize("isAuthenticated()")
   @GetMapping(value = "/me", produces = "application/json")
   public ResponseEntity<LoggedInUserDto> loggedInUserInfo() {
     return ResponseEntity.ok(authService.getLoggedInUserInfo());
